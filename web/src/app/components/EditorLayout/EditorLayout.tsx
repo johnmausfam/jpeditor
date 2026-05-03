@@ -7,6 +7,8 @@ import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import { ResizableImageExtension } from '../../lib/ResizableImageExtension';
 import { Markdown } from 'tiptap-markdown';
+import templateContent from '../../../assets/template.md?raw';
+import { pushRecentFile, removeRecentFile } from '../../lib/recentFiles';
 
 import { RubyExtension } from '../../lib/rubyExtension';
 import { useImageInsert } from '../../lib/useImageInsert';
@@ -28,6 +30,8 @@ import { RubyDialog } from '../RubyDialog/RubyDialog';
 import { ImageDialog } from '../ImageDialog/ImageDialog';
 import { DrivePanel } from '../DrivePanel/DrivePanel';
 import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
+import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
+import { RecentFilesMenu } from '../RecentFilesMenu/RecentFilesMenu';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -92,9 +96,28 @@ export function EditorLayout() {
   // ── Google Drive state ───────────────────────────────────────────────────
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
     useDriveStore();
+
+  // ── New document / template state ────────────────────────────────────
+  const [useTemplate, setUseTemplate] = useState<boolean>(
+    () => localStorage.getItem('jpeditor.useTemplate') === 'true',
+  );
+
+  const handleToggleTemplate = (checked: boolean) => {
+    setUseTemplate(checked);
+    localStorage.setItem('jpeditor.useTemplate', checked ? 'true' : 'false');
+  };
+
+  const handleNewDocument = useCallback(() => {
+    const content = useTemplate ? templateContent : '';
+    lastSourceRef.current = 'source';
+    setMarkdown(content);
+    useDriveStore.getState().setCurrentFile(null, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useTemplate]);
 
   // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
   const wysiwygPaneRef = useRef<HTMLDivElement>(null);
@@ -303,8 +326,10 @@ export function EditorLayout() {
         lastSourceRef.current = 'source';
         setMarkdown(content);
         setCurrentFile(fileId, fileName);
+        pushRecentFile(fileId, fileName);
         setDrivePanelOpen(false);
       } catch (e) {
+        removeRecentFile(fileId);
         setError(`開啟「${fileName}」失敗：${(e as Error).message}`);
       }
     },
@@ -436,6 +461,27 @@ export function EditorLayout() {
           {currentFileName ?? '日文講義エディター'}
         </span>
         <div className={styles.headerActions}>
+          {/* ── Left actions (always visible) ── */}
+          <div className={styles.newDocGroup}>
+            <button
+              className={styles.headerBtn}
+              onClick={handleNewDocument}
+              title="建立新文件"
+            >
+              ＋ 新文件
+            </button>
+            <label className={styles.templateLabel} title="開新文件時載入範本">
+              <input
+                type="checkbox"
+                className={styles.templateCheckbox}
+                checked={useTemplate}
+                onChange={(e) => handleToggleTemplate(e.target.checked)}
+              />
+              範本
+            </label>
+          </div>
+          <RecentFilesMenu onOpenFile={handleOpenDriveFile} />
+          {/* ── Right actions ── */}
           {isLoggedIn ? (
             <>
               <button
@@ -468,6 +514,14 @@ export function EditorLayout() {
               >
                 📁 Drive 文件
               </button>
+              <button
+                className={styles.headerBtn}
+                onClick={() => setSettingsOpen(true)}
+                title="設定"
+                aria-label="設定"
+              >
+                ⚙️
+              </button>
               <span className={styles.userInfo} title={userEmail ?? ''}>
                 {userName ?? userEmail}
               </span>
@@ -480,13 +534,23 @@ export function EditorLayout() {
               </button>
             </>
           ) : (
-            <button
-              className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
-              onClick={handleLogin}
-              title="使用 Google 帳號登入以連接 Drive"
-            >
-              🔑 Google 登入
-            </button>
+            <>
+              <button
+                className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
+                onClick={handleLogin}
+                title="使用 Google 帳號登入以連接 Drive"
+              >
+                🔑 Google 登入
+              </button>
+              <button
+                className={styles.headerBtn}
+                onClick={() => setSettingsOpen(true)}
+                title="設定"
+                aria-label="設定"
+              >
+                ⚙️
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -577,6 +641,12 @@ export function EditorLayout() {
         defaultFileName={currentFileName ?? ''}
         onConfirm={handleSaveAs}
         onCancel={() => setSaveAsDialogOpen(false)}
+      />
+
+      {/* ── Settings dialog ── */}
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
     </div>
   );

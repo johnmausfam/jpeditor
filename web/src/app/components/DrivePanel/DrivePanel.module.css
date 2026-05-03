@@ -65,76 +65,28 @@
 
 /* ── Folder configuration ─────────────────────────────── */
 .folderSection {
-  padding: 14px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid #e2e8f0;
   flex-shrink: 0;
 }
 
-.folderLabel {
-  margin: 0 0 8px;
+.folderActive {
+  margin: 0;
   font-size: 11px;
-  font-weight: 600;
   color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  word-break: break-all;
 }
 
-.folderForm {
-  display: flex;
-  gap: 6px;
-}
-
-.folderInput {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 12px;
+.folderActive strong {
+  font-family: monospace;
   color: #1e293b;
-  font-family: 'BIZ UDGothic', 'Courier New', monospace;
-  min-width: 0;
-}
-
-.folderInput:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-}
-
-.folderBtn {
-  padding: 6px 12px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.folderBtn:not(:disabled):hover {
-  background: #1d4ed8;
-}
-
-.folderBtn:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
 }
 
 .folderHint {
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 11px;
   color: #94a3b8;
   line-height: 1.6;
-}
-
-.folderHint code {
-  font-family: monospace;
-  background: #f1f5f9;
-  padding: 1px 4px;
-  border-radius: 3px;
-  word-break: break-all;
 }
 
 /* ── List header ──────────────────────────────────────── */
