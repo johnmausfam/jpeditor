@@ -43,7 +43,7 @@ import { DrivePanel } from '../DrivePanel/DrivePanel';
 import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
 import { DraftDialog } from '../DraftDialog/DraftDialog';
-import { RecentFilesMenu } from '../RecentFilesMenu/RecentFilesMenu';
+import { AppDrawer } from '../AppDrawer/AppDrawer';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -116,6 +116,7 @@ export function EditorLayout() {
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [draftDialogOpen, setDraftDialogOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
     useDriveStore();
@@ -581,115 +582,40 @@ export function EditorLayout() {
     <div className={styles.layout}>
       {/* ── Header ── */}
       <header className={styles.header}>
+        <button
+          className={styles.drawerBtn}
+          onClick={() => setDrawerOpen(true)}
+          aria-label="開啟選單"
+          title="選單"
+        >
+          ☰
+        </button>
         <span className={styles.logo}>
           {currentFileName ?? '日文講義エディター'}
         </span>
         <div className={styles.headerActions}>
-          {/* ── Left actions (always visible) ── */}
-          <div className={styles.newDocGroup}>
+          {isLoggedIn && (
             <button
-              className={styles.headerBtn}
-              onClick={handleNewDocument}
-              title="建立新文件"
+              className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
+              onClick={handleSave}
+              disabled={isSaving}
+              title={
+                currentFileId
+                  ? `儲存至 ${currentFileName ?? 'Drive'}`
+                  : '另存新檔至 Drive'
+              }
             >
-              ＋ 新文件
+              {isSaving ? '儲存中…' : '💾 儲存'}
             </button>
-            <label className={styles.templateLabel} title="開新文件時載入範本">
-              <input
-                type="checkbox"
-                className={styles.templateCheckbox}
-                checked={useTemplate}
-                onChange={(e) => handleToggleTemplate(e.target.checked)}
-              />
-              範本
-            </label>
-          </div>
-          <RecentFilesMenu onOpenFile={handleOpenDriveFile} />
-          {/* ── Right actions ── */}
-          {isLoggedIn ? (
-            <>
-              <button
-                className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
-                onClick={handleSave}
-                disabled={isSaving}
-                title={
-                  currentFileId
-                    ? `儲存至 ${currentFileName ?? 'Drive'}`
-                    : '另存新檔至 Drive'
-                }
-              >
-                {isSaving ? '儲存中…' : '💾 儲存'}
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => setSaveAsDialogOpen(true)}
-                disabled={isSaving}
-                title="另存新檔"
-              >
-                另存新檔
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => {
-                  setDrivePanelOpen(true);
-                  handleLoadDriveFiles();
-                }}
-                title="Google Drive 文件列表"
-              >
-                📁 Drive 文件
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => setDraftDialogOpen(true)}
-                title="本機草稿備份"
-              >
-                🗒 草稿
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => setSettingsOpen(true)}
-                title="設定"
-                aria-label="設定"
-              >
-                ⚙️
-              </button>
-              <span className={styles.userInfo} title={userEmail ?? ''}>
-                {userName ?? userEmail}
-              </span>
-              <button
-                className={styles.headerBtn}
-                onClick={handleLogout}
-                title="登出 Google 帳號"
-              >
-                登出
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
-                onClick={handleLogin}
-                title="使用 Google 帳號登入以連接 Drive"
-              >
-                🔑 Google 登入
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => setDraftDialogOpen(true)}
-                title="本機草稿備份"
-              >
-                🗒 草稿
-              </button>
-              <button
-                className={styles.headerBtn}
-                onClick={() => setSettingsOpen(true)}
-                title="設定"
-                aria-label="設定"
-              >
-                ⚙️
-              </button>
-            </>
           )}
+          <button
+            className={styles.headerBtn}
+            onClick={() => setSettingsOpen(true)}
+            title="設定"
+            aria-label="設定"
+          >
+            ⚙️
+          </button>
         </div>
       </header>
 
@@ -785,6 +711,27 @@ export function EditorLayout() {
         open={youtubeDialogOpen}
         onConfirm={handleYoutubeConfirm}
         onCancel={handleYoutubeCancel}
+      />
+
+      {/* ── App drawer ── */}
+      <AppDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        useTemplate={useTemplate}
+        onToggleTemplate={handleToggleTemplate}
+        onNewDocument={handleNewDocument}
+        onOpenFile={handleOpenDriveFile}
+        onOpenDrive={() => {
+          setDrivePanelOpen(true);
+          handleLoadDriveFiles();
+        }}
+        onSaveAs={() => setSaveAsDialogOpen(true)}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        isLoggedIn={isLoggedIn}
+        userName={userName ?? null}
+        userEmail={userEmail ?? null}
+        onOpenDrafts={() => setDraftDialogOpen(true)}
       />
 
       {/* ── Google Drive file panel ── */}

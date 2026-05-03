@@ -10,8 +10,8 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 12px;
+  padding: 0 16px 0 8px;
   height: 48px;
   background: #1e293b;
   color: #f8fafc;
@@ -19,50 +19,41 @@
   border-bottom: 2px solid #334155;
 }
 
+.drawerBtn {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.drawerBtn:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
 .logo {
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.03em;
   font-family: 'Noto Serif JP', serif;
-}
-
-/* Header right-side actions (Drive login, file list, logout) */
-.headerActions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* New document group: button + template checkbox */
-.newDocGroup {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-right: 6px;
-  border-right: 1px solid #334155;
-}
-
-.templateLabel {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #94a3b8;
-  cursor: pointer;
-  user-select: none;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.templateLabel:hover {
-  color: #cbd5e1;
-}
-
-.templateCheckbox {
-  accent-color: #60a5fa;
-  cursor: pointer;
-  width: 13px;
-  height: 13px;
+/* Header right-side actions */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .headerBtn {
@@ -90,15 +81,6 @@
 .headerBtnPrimary:hover {
   background: #1e3a5f;
   border-color: #93c5fd;
-}
-
-.userInfo {
-  font-size: 12px;
-  color: #94a3b8;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* ── Main editor area ─────────────────────────────────── */
