@@ -133,7 +133,8 @@ export const useDriveStore = create<DriveState>((set) => ({
     set({ folderId: id });
   },
 
-  setCurrentFile: (id, name) => set({ currentFileId: id, currentFileName: name }),
+  setCurrentFile: (id, name) =>
+    set({ currentFileId: id, currentFileName: name }),
 
   setLoadingFiles: (v) => set({ isLoadingFiles: v }),
   setError: (error) => set({ error }),

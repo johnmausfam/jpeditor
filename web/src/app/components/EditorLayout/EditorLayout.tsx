@@ -93,7 +93,8 @@ export function EditorLayout() {
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } = useDriveStore();
+  const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
+    useDriveStore();
 
   // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
   const wysiwygPaneRef = useRef<HTMLDivElement>(null);
@@ -294,7 +295,8 @@ export function EditorLayout() {
    */
   const handleOpenDriveFile = useCallback(
     async (fileId: string, fileName: string) => {
-      const { accessToken, setError, setCurrentFile } = useDriveStore.getState();
+      const { accessToken, setError, setCurrentFile } =
+        useDriveStore.getState();
       if (!accessToken) return;
       try {
         const content = await downloadFileContent(accessToken, fileId);
@@ -312,8 +314,12 @@ export function EditorLayout() {
 
   /** Save (overwrite) the currently open Drive file. */
   const handleSave = useCallback(async () => {
-    const { accessToken, currentFileId: fid, folderId, setError } =
-      useDriveStore.getState();
+    const {
+      accessToken,
+      currentFileId: fid,
+      folderId,
+      setError,
+    } = useDriveStore.getState();
     if (!accessToken) return;
     if (!fid) {
       setSaveAsDialogOpen(true);
@@ -347,8 +353,16 @@ export function EditorLayout() {
       setIsSaving(true);
       setSaveAsDialogOpen(false);
       try {
-        const newId = await createDriveFile(accessToken, folderId, fileName, markdown);
-        setCurrentFile(newId, fileName.endsWith('.md') ? fileName : `${fileName}.md`);
+        const newId = await createDriveFile(
+          accessToken,
+          folderId,
+          fileName,
+          markdown,
+        );
+        setCurrentFile(
+          newId,
+          fileName.endsWith('.md') ? fileName : `${fileName}.md`,
+        );
         const files = await listMarkdownFiles(accessToken, folderId);
         useDriveStore.getState().setFiles(files);
       } catch (e) {
@@ -428,7 +442,11 @@ export function EditorLayout() {
                 className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
                 onClick={handleSave}
                 disabled={isSaving}
-                title={currentFileId ? `儲存至 ${currentFileName ?? 'Drive'}` : '另存新檔至 Drive'}
+                title={
+                  currentFileId
+                    ? `儲存至 ${currentFileName ?? 'Drive'}`
+                    : '另存新檔至 Drive'
+                }
               >
                 {isSaving ? '儲存中…' : '💾 儲存'}
               </button>

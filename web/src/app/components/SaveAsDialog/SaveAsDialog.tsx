@@ -37,15 +37,25 @@ export function SaveAsDialog({
 
   const normalized = fileName.trim();
   const canConfirm = normalized.length > 0;
-  const displayName = normalized.endsWith('.md') ? normalized : normalized ? `${normalized}.md` : '';
+  const displayName = normalized.endsWith('.md')
+    ? normalized
+    : normalized
+      ? `${normalized}.md`
+      : '';
 
   const handleConfirm = () => {
     if (canConfirm) onConfirm(normalized);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') { e.preventDefault(); handleConfirm(); }
-    if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleConfirm();
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
   };
 
   return (
