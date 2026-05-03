@@ -17,6 +17,7 @@ const TEMPLATE_FALLBACK =
 const EFFECTIVE_TEMPLATE = templateContent || TEMPLATE_FALLBACK;
 
 import { RubyExtension } from '../../lib/rubyExtension';
+import { YoutubeExtension } from '../../lib/YoutubeExtension';
 import { useImageInsert } from '../../lib/useImageInsert';
 import { requestGoogleLogin, revokeGoogleToken } from '../../lib/googleAuth';
 import {
@@ -32,8 +33,11 @@ import { Toolbar } from '../Toolbar/Toolbar';
 import { WysiwygEditor } from '../WysiwygEditor/WysiwygEditor';
 import { SourceEditor } from '../SourceEditor/SourceEditor';
 import { StatusBar } from '../StatusBar/StatusBar';
+import Link from '@tiptap/extension-link';
 import { RubyDialog } from '../RubyDialog/RubyDialog';
 import { ImageDialog } from '../ImageDialog/ImageDialog';
+import { LinkDialog } from '../LinkDialog/LinkDialog';
+import { YoutubeDialog } from '../YoutubeDialog/YoutubeDialog';
 import { DrivePanel } from '../DrivePanel/DrivePanel';
 import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
@@ -98,7 +102,13 @@ export function EditorLayout() {
 
   // ── Image dialog state ───────────────────────────────────────────────────
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  // ── Link dialog state ───────────────────────────────────────────────
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkHasSelection, setLinkHasSelection] = useState(false);
+  const [linkInitialUrl, setLinkInitialUrl] = useState('');
 
+  // ── YouTube dialog state ────────────────────────────────────────────
+  const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
   // ── Google Drive state ───────────────────────────────────────────────────
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
@@ -141,6 +151,8 @@ export function EditorLayout() {
       Highlight.configure({ multicolor: true }),
       ResizableImageExtension.configure({ inline: false, allowBase64: true }),
       RubyExtension,
+      Link.configure({ autolink: false, openOnClick: false }),
+      YoutubeExtension,
       Markdown.configure({ html: true, transformPastedText: true }),
     ],
     content: DEFAULT_CONTENT,
@@ -262,6 +274,60 @@ export function EditorLayout() {
 
   const handleImageCancel = useCallback(() => {
     setImageDialogOpen(false);
+    editor?.view.focus();
+  }, [editor]);
+
+  // ── Link helpers ────────────────────────────────────────────────────
+  const openLinkDialog = useCallback(() => {
+    if (!editor) return;
+    setLinkHasSelection(!editor.state.selection.empty);
+    const attrs = editor.getAttributes('link') as { href?: string };
+    setLinkInitialUrl(attrs.href ?? '');
+    setLinkDialogOpen(true);
+  }, [editor]);
+
+  const handleLinkConfirm = useCallback(
+    (url: string, displayText: string) => {
+      if (!editor) return;
+      if (editor.state.selection.empty && displayText) {
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: 'text',
+            text: displayText,
+            marks: [{ type: 'link', attrs: { href: url } }],
+          })
+          .run();
+      } else {
+        editor.chain().focus().setLink({ href: url }).run();
+      }
+      setLinkDialogOpen(false);
+    },
+    [editor],
+  );
+
+  const handleLinkCancel = useCallback(() => {
+    setLinkDialogOpen(false);
+    editor?.view.focus();
+  }, [editor]);
+
+  // ── YouTube helpers ───────────────────────────────────────────────
+  const handleYoutubeConfirm = useCallback(
+    (videoId: string) => {
+      if (!editor) return;
+      editor
+        .chain()
+        .focus()
+        .insertContent({ type: 'youtube', attrs: { videoId } })
+        .run();
+      setYoutubeDialogOpen(false);
+    },
+    [editor],
+  );
+
+  const handleYoutubeCancel = useCallback(() => {
+    setYoutubeDialogOpen(false);
     editor?.view.focus();
   }, [editor]);
 
@@ -566,6 +632,8 @@ export function EditorLayout() {
         editor={editor}
         onRuby={openRubyDialog}
         onImage={() => setImageDialogOpen(true)}
+        onLink={openLinkDialog}
+        onYoutube={() => setYoutubeDialogOpen(true)}
       />
 
       {/* ── Main editor area ── */}
@@ -631,6 +699,22 @@ export function EditorLayout() {
         open={imageDialogOpen}
         onConfirm={handleImageConfirm}
         onCancel={handleImageCancel}
+      />
+
+      {/* ── Link dialog ── */}
+      <LinkDialog
+        open={linkDialogOpen}
+        hasSelection={linkHasSelection}
+        initialUrl={linkInitialUrl}
+        onConfirm={handleLinkConfirm}
+        onCancel={handleLinkCancel}
+      />
+
+      {/* ── YouTube embed dialog ── */}
+      <YoutubeDialog
+        open={youtubeDialogOpen}
+        onConfirm={handleYoutubeConfirm}
+        onCancel={handleYoutubeCancel}
       />
 
       {/* ── Google Drive file panel ── */}

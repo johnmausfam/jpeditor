@@ -8,17 +8,26 @@ import {
   TEXT_COLOR_PRESETS,
   HIGHLIGHT_PRESETS,
 } from '../ColorPicker/ColorPicker';
+import { SymbolPicker } from '../SymbolPicker/SymbolPicker';
 import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
   editor: Editor | null;
   onRuby: () => void;
   onImage: () => void;
+  onLink: () => void;
+  onYoutube: () => void;
 }
 
 type HeadingLevel = 1 | 2 | 3;
 
-export function Toolbar({ editor, onRuby, onImage }: ToolbarProps) {
+export function Toolbar({
+  editor,
+  onRuby,
+  onImage,
+  onLink,
+  onYoutube,
+}: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
 
   // ── Selection preservation for native color picker dialog ───────────────
@@ -262,6 +271,35 @@ export function Toolbar({ editor, onRuby, onImage }: ToolbarProps) {
         >
           🖼
         </button>
+      </div>
+
+      <div className={styles.separator} />
+
+      {/* 超連結、YouTube 嵌入、特殊符號 */}
+      <div className={styles.group}>
+        <button
+          className={`${styles.btn} ${isActive('link') ? styles.active : ''}`}
+          onMouseDown={cmd(() => {
+            if (editor?.isActive('link')) {
+              editor.chain().focus().unsetLink().run();
+            } else {
+              onLink();
+            }
+          })}
+          aria-label="超連結"
+          title={editor?.isActive('link') ? '移除連結' : '插入超連結'}
+        >
+          🔗
+        </button>
+        <button
+          className={styles.btn}
+          onMouseDown={cmd(() => onYoutube())}
+          aria-label="嵌入 YouTube 影片"
+          title="嵌入 YouTube 影片"
+        >
+          ▶
+        </button>
+        <SymbolPicker editor={editor} btnClassName={styles.btn} />
       </div>
 
       {/* 彈性空間 */}
