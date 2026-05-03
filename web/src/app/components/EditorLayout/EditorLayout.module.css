@@ -1,0 +1,100 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  height: 48px;
+  background: #1e293b;
+  color: #f8fafc;
+  flex-shrink: 0;
+  border-bottom: 2px solid #334155;
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-family: 'Noto Serif JP', serif;
+}
+
+/* ── Main editor area ─────────────────────────────────── */
+.main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorContainer {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Panes ─────────────────────────────────────────────── */
+.pane {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* Source pane takes remaining space in split view */
+.sourcePaneFlex {
+  flex: 1;
+}
+
+.paneLabel {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f3f5;
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+
+.paneContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Resizable divider ─────────────────────────────────── */
+.divider {
+  width: 5px;
+  background: #dee2e6;
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.divider:hover,
+.divider:active {
+  background: #4a9eff;
+}
+
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 32px;
+  background: #9ca3af;
+  border-radius: 2px;
+}

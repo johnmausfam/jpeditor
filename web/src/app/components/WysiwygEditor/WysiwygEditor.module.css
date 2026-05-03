@@ -1,0 +1,179 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.sans {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+}
+
+.serif {
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'YuMincho', serif;
+}
+
+.editorContent {
+  flex: 1;
+  padding: 32px 48px;
+  min-height: 100%;
+}
+
+/* TipTap ProseMirror content styles */
+.editorContent :global(.ProseMirror) {
+  min-height: 100%;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+.editorContent :global(.ProseMirror) > * + * {
+  margin-top: 0.75em;
+}
+
+.editorContent :global(.ProseMirror h1) {
+  font-size: 2em;
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.3em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.editorContent :global(.ProseMirror h2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.2em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.editorContent :global(.ProseMirror h3) {
+  font-size: 1.25em;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+
+.editorContent :global(.ProseMirror p) {
+  margin: 0.5em 0;
+}
+
+.editorContent :global(.ProseMirror strong) {
+  font-weight: 700;
+}
+
+.editorContent :global(.ProseMirror em) {
+  font-style: italic;
+}
+
+.editorContent :global(.ProseMirror u) {
+  text-decoration: underline;
+}
+
+.editorContent :global(.ProseMirror s) {
+  text-decoration: line-through;
+}
+
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol) {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.editorContent :global(.ProseMirror li) {
+  margin: 0.25em 0;
+}
+
+.editorContent :global(.ProseMirror blockquote) {
+  border-left: 4px solid #4a9eff;
+  padding-left: 1em;
+  color: #555;
+  margin: 1em 0;
+  background: #f0f7ff;
+  border-radius: 0 4px 4px 0;
+  padding: 0.75em 1em;
+}
+
+.editorContent :global(.ProseMirror code) {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-family: 'Source Han Code JP', 'BIZ UDGothic', 'Courier New', monospace;
+  font-size: 0.875em;
+}
+
+.editorContent :global(.ProseMirror pre) {
+  background: #1e2332;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.editorContent :global(.ProseMirror pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875em;
+}
+
+.editorContent :global(.ProseMirror table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.editorContent :global(.ProseMirror th),
+.editorContent :global(.ProseMirror td) {
+  border: 1px solid #d1d5db;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.editorContent :global(.ProseMirror th) {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.editorContent :global(.ProseMirror tr:nth-child(even) td) {
+  background: #fafafa;
+}
+
+.editorContent :global(.ProseMirror hr) {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 1.5em 0;
+}
+
+.editorContent :global(.ProseMirror img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Ruby (furigana) styles */
+.editorContent :global(.ProseMirror ruby) {
+  ruby-align: center;
+}
+
+.editorContent :global(.ProseMirror rt) {
+  font-size: 0.5em;
+  color: #555;
+}
+
+/* Placeholder */
+.editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}

@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+}
+
+.label {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f3f5;
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+
+.container :global(.cm-editor) {
+  height: calc(100% - 32px);
+  flex: 1;
+}
+
+.container :global(.cm-focused) {
+  outline: none;
+}

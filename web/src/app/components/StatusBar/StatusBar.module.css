@@ -1,0 +1,20 @@
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 28px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  font-size: 12px;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.item {
+  white-space: nowrap;
+}
+
+.divider {
+  color: #ced4da;
+}
