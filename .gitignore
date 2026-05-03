@@ -46,8 +46,3 @@ desktop.ini
 
 # Test coverage
 coverage/
-
-# nx
-.nx/workspace-data/
-.nx/cache/
-.nx
