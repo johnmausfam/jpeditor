@@ -117,8 +117,19 @@
           ]
         },
         {
+          "file": "web/src/app/components/WysiwygEditor/WysiwygEditor.module.css",
+          "hash": "1899025683653023168"
+        },
+        {
+          "file": "web/src/app/components/WysiwygEditor/WysiwygEditor.tsx",
+          "hash": "17780550194637187394",
+          "deps": [
+            "npm:@tiptap/react"
+          ]
+        },
+        {
           "file": "web/src/app/lib/rubyExtension.ts",
-          "hash": "11568172352110469345",
+          "hash": "1378443148310510607",
           "deps": [
             "npm:@tiptap/core"
           ]
@@ -175,7 +186,7 @@
       "jpeditor": [
         {
           "file": ".gitignore",
-          "hash": "11900229695057693808"
+          "hash": "9321850054713029732"
         },
         {
           "file": ".prettierignore",
@@ -184,14 +195,6 @@
         {
           "file": ".prettierrc",
           "hash": "16267754514737964994"
-        },
-        {
-          "file": "dist/web/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "dist/web/index.html",
-          "hash": "6562486001962711282"
         },
         {
           "file": "nx.json",

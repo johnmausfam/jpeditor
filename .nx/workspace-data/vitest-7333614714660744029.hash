@@ -1273,5 +1273,464 @@
       }
     },
     "projectType": "library"
+  },
+  "1004472834386798080web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "6080602163297049513web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "3421863950204755793web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "17879871969575730771web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "1425370917713827801web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "9380417623051657965web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "6940382499058833014web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "11581224276646168060web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
+  },
+  "489261923740228689web/vite.config.mts": {
+    "targets": {
+      "test": {
+        "command": "vitest",
+        "options": {
+          "cwd": "web"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "vitest"
+            ]
+          },
+          {
+            "env": "CI"
+          },
+          {
+            "dependentTasksOutputFiles": "**/*.js",
+            "transitive": true
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/coverage/web"
+        ],
+        "metadata": {
+          "technologies": [
+            "vitest"
+          ],
+          "description": "Run Vitest tests",
+          "help": {
+            "command": "npx vitest --help",
+            "example": {
+              "options": {
+                "bail": 1,
+                "coverage": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "targetGroups": {
+        "TEST (CI)": []
+      }
+    },
+    "projectType": "library"
   }
 }

@@ -4,6 +4,8 @@ import styles from './RubyDialog.module.css';
 interface RubyDialogProps {
   open: boolean;
   selectedText: string;
+  initialReading?: string;
+  isEditing?: boolean;
   onConfirm: (reading: string) => void;
   onCancel: () => void;
 }
@@ -11,20 +13,22 @@ interface RubyDialogProps {
 export function RubyDialog({
   open,
   selectedText,
+  initialReading = '',
+  isEditing = false,
   onConfirm,
   onCancel,
 }: RubyDialogProps) {
   const [reading, setReading] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset and focus when dialog opens
+  // Reset and focus when dialog opens (pre-fill reading when editing)
   useEffect(() => {
     if (open) {
-      setReading('');
-      // Small delay so the DOM has mounted
+      setReading(initialReading);
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!open) return null;
@@ -57,7 +61,9 @@ export function RubyDialog({
         aria-label="振假名標注"
       >
         {/* Title */}
-        <h2 className={styles.title}>振假名（ルビ）標注</h2>
+        <h2 className={styles.title}>
+          {isEditing ? '振假名（ルビ）編輯' : '振假名（ルビ）標注'}
+        </h2>
 
         {/* Live preview */}
         <div className={styles.previewBox} aria-label="預覽">

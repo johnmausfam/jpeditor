@@ -66,6 +66,8 @@ export function EditorLayout() {
   // ── Ruby dialog state ────────────────────────────────────────────────────
   const [rubyDialogOpen, setRubyDialogOpen] = useState(false);
   const [rubySelectedText, setRubySelectedText] = useState('');
+  const [rubyInitialReading, setRubyInitialReading] = useState('');
+  const [rubyEditPos, setRubyEditPos] = useState(-1); // -1 = insert mode
 
   // Track which editor was last to update (to prevent sync loops)
   const lastSourceRef = useRef<'wysiwyg' | 'source'>('wysiwyg');
@@ -118,8 +120,8 @@ export function EditorLayout() {
     if (!editor) return;
     const { selection, doc } = editor.state;
     const selectedText = doc.textBetween(selection.from, selection.to, '');
-    setRubySelectedText(selectedText);
-    setRubyDialogOpen(true);
+    setRubySelectedText(selectedText);    setRubyInitialReading('');
+    setRubyEditPos(-1);    setRubyDialogOpen(true);
   }, [editor]);
 
   // Keep a ref so the document event listener always has the latest version
@@ -135,19 +137,48 @@ export function EditorLayout() {
     return () => document.removeEventListener('jpeditor:open-ruby', handler);
   }, []);
 
+  // Listen for double-click on existing ruby node (edit mode)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { text, reading, pos } = (
+        e as CustomEvent<{ text: string; reading: string; pos: number }>
+      ).detail;
+      setRubySelectedText(text);
+      setRubyInitialReading(reading);
+      setRubyEditPos(pos);
+      setRubyDialogOpen(true);
+    };
+    document.addEventListener('jpeditor:edit-ruby', handler);
+    return () => document.removeEventListener('jpeditor:edit-ruby', handler);
+  }, []);
+
   const handleRubyConfirm = useCallback(
     (reading: string) => {
       if (!editor) return;
-      editor.chain().focus().setRuby({ text: rubySelectedText, reading }).run();
+      if (rubyEditPos >= 0) {
+        // Edit mode: replace the ruby node at the known position
+        editor
+          .chain()
+          .focus()
+          .editRuby({ pos: rubyEditPos, text: rubySelectedText, reading })
+          .run();
+      } else {
+        // Insert mode: replace selected text with new ruby node
+        editor.chain().focus().setRuby({ text: rubySelectedText, reading }).run();
+      }
       setRubyDialogOpen(false);
       setRubySelectedText('');
+      setRubyInitialReading('');
+      setRubyEditPos(-1);
     },
-    [editor, rubySelectedText],
+    [editor, rubySelectedText, rubyEditPos],
   );
 
   const handleRubyCancel = useCallback(() => {
     setRubyDialogOpen(false);
     setRubySelectedText('');
+    setRubyInitialReading('');
+    setRubyEditPos(-1);
     editor?.view.focus();
   }, [editor]);
 
@@ -249,6 +280,8 @@ export function EditorLayout() {
       <RubyDialog
         open={rubyDialogOpen}
         selectedText={rubySelectedText}
+        initialReading={rubyInitialReading}
+        isEditing={rubyEditPos >= 0}
         onConfirm={handleRubyConfirm}
         onCancel={handleRubyCancel}
       />
