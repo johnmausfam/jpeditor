@@ -8944,11 +8944,6 @@
       },
       {
         "source": "web",
-        "target": "npm:@tiptap/extension-image",
-        "type": "static"
-      },
-      {
-        "source": "web",
         "target": "npm:tiptap-markdown",
         "type": "static"
       },
@@ -8970,6 +8965,11 @@
       {
         "source": "web",
         "target": "npm:@tiptap/pm",
+        "type": "static"
+      },
+      {
+        "source": "web",
+        "target": "npm:@tiptap/extension-image",
         "type": "static"
       },
       {
@@ -19909,5 +19909,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1777787751568
+  "computedAt": 1777792690466
 }

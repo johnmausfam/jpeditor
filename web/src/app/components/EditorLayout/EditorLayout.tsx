@@ -10,6 +10,13 @@ import { Markdown } from 'tiptap-markdown';
 
 import { RubyExtension } from '../../lib/rubyExtension';
 import { useImageInsert } from '../../lib/useImageInsert';
+import { requestGoogleLogin, revokeGoogleToken } from '../../lib/googleAuth';
+import {
+  fetchUserInfo,
+  listMarkdownFiles,
+  downloadFileContent,
+} from '../../lib/googleDriveApi';
+import { useDriveStore } from '../../store/driveStore';
 import { useEditorStore } from '../../store/editorStore';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { WysiwygEditor } from '../WysiwygEditor/WysiwygEditor';
@@ -17,6 +24,7 @@ import { SourceEditor } from '../SourceEditor/SourceEditor';
 import { StatusBar } from '../StatusBar/StatusBar';
 import { RubyDialog } from '../RubyDialog/RubyDialog';
 import { ImageDialog } from '../ImageDialog/ImageDialog';
+import { DrivePanel } from '../DrivePanel/DrivePanel';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -77,6 +85,10 @@ export function EditorLayout() {
 
   // ── Image dialog state ───────────────────────────────────────────────────
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
+  // ── Google Drive state ───────────────────────────────────────────────────
+  const [drivePanelOpen, setDrivePanelOpen] = useState(false);
+  const { isLoggedIn, userName, userEmail } = useDriveStore();
 
   // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
   const wysiwygPaneRef = useRef<HTMLDivElement>(null);
@@ -218,6 +230,81 @@ export function EditorLayout() {
     editor?.view.focus();
   }, [editor]);
 
+  // ── Google Drive handlers ─────────────────────────────────────────────────
+
+  /** Load (or refresh) the file list from the configured Drive folder. */
+  const handleLoadDriveFiles = useCallback(async () => {
+    const store = useDriveStore.getState();
+    const { accessToken, folderId } = store;
+    if (!accessToken || !folderId.trim()) {
+      store.setError('請先設定 Google Drive 資料夾 ID。');
+      return;
+    }
+    store.setLoadingFiles(true);
+    store.setError(null);
+    try {
+      const files = await listMarkdownFiles(accessToken, folderId);
+      store.setFiles(files);
+    } catch (e) {
+      store.setError(`載入文件列表失敗：${(e as Error).message}`);
+    } finally {
+      useDriveStore.getState().setLoadingFiles(false);
+    }
+  }, []);
+
+  /** Trigger the GIS OAuth popup; on success, fetch user profile and auto-load files. */
+  const handleLogin = useCallback(() => {
+    requestGoogleLogin(async (token) => {
+      if (!token) {
+        useDriveStore.getState().setError('登入失敗，請稍後再試。');
+        return;
+      }
+      try {
+        const info = await fetchUserInfo(token);
+        useDriveStore
+          .getState()
+          .setAuth(token, info.email, info.name, info.picture);
+        setDrivePanelOpen(true);
+        const { folderId } = useDriveStore.getState();
+        if (folderId) await handleLoadDriveFiles();
+      } catch (e) {
+        useDriveStore
+          .getState()
+          .setError(`取得使用者資訊失敗：${(e as Error).message}`);
+      }
+    });
+  }, [handleLoadDriveFiles]);
+
+  /** Revoke the token and clear all Drive state. */
+  const handleLogout = useCallback(() => {
+    const { accessToken, logout } = useDriveStore.getState();
+    if (accessToken) revokeGoogleToken(accessToken);
+    logout();
+    setDrivePanelOpen(false);
+  }, []);
+
+  /**
+   * Download a Drive file and load it into the editor via the
+   * source→TipTap sync path (same as typing in the CodeMirror pane).
+   */
+  const handleOpenDriveFile = useCallback(
+    async (fileId: string, fileName: string) => {
+      const { accessToken, setError } = useDriveStore.getState();
+      if (!accessToken) return;
+      try {
+        const content = await downloadFileContent(accessToken, fileId);
+        lastSourceRef.current = 'source';
+        setMarkdown(content);
+        setDrivePanelOpen(false);
+      } catch (e) {
+        setError(`開啟「${fileName}」失敗：${(e as Error).message}`);
+      }
+    },
+    // setMarkdown is a stable state-setter reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   // Paste / drag-drop image insertion into the WYSIWYG pane
   useImageInsert({ editor, targetEl: wysiwygPaneRef.current });
 
@@ -263,6 +350,40 @@ export function EditorLayout() {
       {/* ── Header ── */}
       <header className={styles.header}>
         <span className={styles.logo}>日文講義エディター</span>
+        <div className={styles.headerActions}>
+          {isLoggedIn ? (
+            <>
+              <button
+                className={styles.headerBtn}
+                onClick={() => {
+                  setDrivePanelOpen(true);
+                  handleLoadDriveFiles();
+                }}
+                title="Google Drive 文件列表"
+              >
+                📁 Drive 文件
+              </button>
+              <span className={styles.userInfo} title={userEmail ?? ''}>
+                {userName ?? userEmail}
+              </span>
+              <button
+                className={styles.headerBtn}
+                onClick={handleLogout}
+                title="登出 Google 帳號"
+              >
+                登出
+              </button>
+            </>
+          ) : (
+            <button
+              className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
+              onClick={handleLogin}
+              title="使用 Google 帳號登入以連接 Drive"
+            >
+              🔑 Google 登入
+            </button>
+          )}
+        </div>
       </header>
 
       {/* ── Toolbar ── */}
@@ -335,6 +456,14 @@ export function EditorLayout() {
         open={imageDialogOpen}
         onConfirm={handleImageConfirm}
         onCancel={handleImageCancel}
+      />
+
+      {/* ── Google Drive file panel ── */}
+      <DrivePanel
+        open={drivePanelOpen}
+        onClose={() => setDrivePanelOpen(false)}
+        onOpenFile={handleOpenDriveFile}
+        onRefresh={handleLoadDriveFiles}
       />
     </div>
   );
