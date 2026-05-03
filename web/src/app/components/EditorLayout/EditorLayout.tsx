@@ -10,6 +10,12 @@ import { Markdown } from 'tiptap-markdown';
 import templateContent from '../../../assets/template.md?raw';
 import { pushRecentFile, removeRecentFile } from '../../lib/recentFiles';
 
+// CR-3: fallback in case the static import yields an empty string
+// (e.g. template.md was manually deleted before a dev-server restart)
+const TEMPLATE_FALLBACK =
+  '# 第　課　タイトル\n\n**日期：**　　　　**班級：**　　　　**教師：**\n';
+const EFFECTIVE_TEMPLATE = templateContent || TEMPLATE_FALLBACK;
+
 import { RubyExtension } from '../../lib/rubyExtension';
 import { useImageInsert } from '../../lib/useImageInsert';
 import { requestGoogleLogin, revokeGoogleToken } from '../../lib/googleAuth';
@@ -112,7 +118,7 @@ export function EditorLayout() {
   };
 
   const handleNewDocument = useCallback(() => {
-    const content = useTemplate ? templateContent : '';
+    const content = useTemplate ? EFFECTIVE_TEMPLATE : '';
     lastSourceRef.current = 'source';
     setMarkdown(content);
     useDriveStore.getState().setCurrentFile(null, null);
