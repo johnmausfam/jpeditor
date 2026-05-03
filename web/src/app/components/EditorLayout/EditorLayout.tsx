@@ -9,6 +9,7 @@ import { ResizableImageExtension } from '../../lib/ResizableImageExtension';
 import { Markdown } from 'tiptap-markdown';
 import templateContent from '../../../assets/template.md?raw';
 import { pushRecentFile, removeRecentFile } from '../../lib/recentFiles';
+import { saveDraft, getDraftIntervalMs } from '../../lib/localDrafts';
 
 // CR-3: fallback in case the static import yields an empty string
 // (e.g. template.md was manually deleted before a dev-server restart)
@@ -41,6 +42,7 @@ import { YoutubeDialog } from '../YoutubeDialog/YoutubeDialog';
 import { DrivePanel } from '../DrivePanel/DrivePanel';
 import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
+import { DraftDialog } from '../DraftDialog/DraftDialog';
 import { RecentFilesMenu } from '../RecentFilesMenu/RecentFilesMenu';
 import styles from './EditorLayout.module.css';
 
@@ -113,6 +115,7 @@ export function EditorLayout() {
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
     useDriveStore();
@@ -474,6 +477,55 @@ export function EditorLayout() {
   // Paste / drag-drop image insertion into the WYSIWYG pane
   useImageInsert({ editor, targetEl: wysiwygPaneRef.current });
 
+  // ── beforeunload: warn on unsaved content ───────────────────────────────
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (markdown !== '') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [markdown]);
+
+  // ── Local draft backup interval ─────────────────────────────────────────
+  // Use a ref so the interval callback always sees the latest markdown/fileId
+  const markdownRef = useRef(markdown);
+  useEffect(() => {
+    markdownRef.current = markdown;
+  }, [markdown]);
+
+  const lastBackedUpRef = useRef<string | null>(null);
+  const [lastDraftAt, setLastDraftAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    const startInterval = () => {
+      const ms = getDraftIntervalMs();
+      return window.setInterval(() => {
+        const current = markdownRef.current;
+        if (current === '' || current === lastBackedUpRef.current) return;
+        const { currentFileId, currentFileName } = useDriveStore.getState();
+        saveDraft(currentFileId ?? '__new__', currentFileName, current);
+        lastBackedUpRef.current = current;
+        setLastDraftAt(Date.now());
+      }, ms);
+    };
+
+    let id = startInterval();
+
+    // Allow SettingsDialog to restart the interval when the user changes it
+    const handler = () => {
+      clearInterval(id);
+      id = startInterval();
+    };
+    window.addEventListener('jpeditor:draft-interval-changed', handler);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('jpeditor:draft-interval-changed', handler);
+    };
+  }, []);
+
   // ── Derived stats ───────────────────────────────────────────────────────
   const charCount = markdown.replace(/\s/g, '').length;
   const lineCount = markdown.split('\n').length;
@@ -588,6 +640,13 @@ export function EditorLayout() {
               </button>
               <button
                 className={styles.headerBtn}
+                onClick={() => setDraftDialogOpen(true)}
+                title="本機草稿備份"
+              >
+                🗒 草稿
+              </button>
+              <button
+                className={styles.headerBtn}
                 onClick={() => setSettingsOpen(true)}
                 title="設定"
                 aria-label="設定"
@@ -613,6 +672,13 @@ export function EditorLayout() {
                 title="使用 Google 帳號登入以連接 Drive"
               >
                 🔑 Google 登入
+              </button>
+              <button
+                className={styles.headerBtn}
+                onClick={() => setDraftDialogOpen(true)}
+                title="本機草稿備份"
+              >
+                🗒 草稿
               </button>
               <button
                 className={styles.headerBtn}
@@ -682,7 +748,11 @@ export function EditorLayout() {
       </main>
 
       {/* ── Status bar ── */}
-      <StatusBar charCount={charCount} lineCount={lineCount} />
+      <StatusBar
+        charCount={charCount}
+        lineCount={lineCount}
+        lastDraftAt={lastDraftAt}
+      />
 
       {/* ── Ruby dialog (portal-like, rendered at layout root) ── */}
       <RubyDialog
@@ -737,6 +807,17 @@ export function EditorLayout() {
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+
+      {/* ── Draft backup dialog ── */}
+      <DraftDialog
+        open={draftDialogOpen}
+        onClose={() => setDraftDialogOpen(false)}
+        onApply={(content) => {
+          lastSourceRef.current = 'source';
+          setMarkdown(content);
+          setDraftDialogOpen(false);
+        }}
       />
     </div>
   );

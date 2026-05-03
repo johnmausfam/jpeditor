@@ -1,0 +1,251 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.24);
+  width: 700px;
+  max-width: calc(100vw - 32px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.closeBtn:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ── Empty state ── */
+.empty {
+  padding: 40px 24px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Two-column body ── */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Left list ── */
+.list {
+  width: 240px;
+  min-width: 200px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-right: 1px solid #e2e8f0;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+
+.listItem:hover {
+  background: #f8fafc;
+}
+
+.listItemActive {
+  background: #eff6ff;
+  border-left-color: #2563eb;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemName {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemDate {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.removeBtn:hover {
+  opacity: 1;
+  background: #fee2e2;
+}
+
+/* ── Right preview ── */
+.preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 14px 18px;
+  gap: 10px;
+  min-width: 0;
+}
+
+.previewHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.previewName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.previewDate {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.previewContent {
+  flex: 1;
+  overflow: auto;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+.previewActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.applyBtn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.applyBtn:hover {
+  background: #334155;
+}
+
+.applyNote {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.noSelection {
+  margin: auto;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ── Footer ── */
+.footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 12px 20px;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.clearBtn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.clearBtnConfirm {
+  background: #fef2f2;
+  border-color: #dc2626;
+  font-weight: 600;
+}
