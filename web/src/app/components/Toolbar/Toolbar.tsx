@@ -17,6 +17,7 @@ interface ToolbarProps {
   onImage: () => void;
   onLink: () => void;
   onYoutube: () => void;
+  onSetViewMode?: (mode: ViewMode) => void;
 }
 
 type HeadingLevel = 1 | 2 | 3;
@@ -27,8 +28,10 @@ export function Toolbar({
   onImage,
   onLink,
   onYoutube,
+  onSetViewMode,
 }: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
+  const handleSetViewMode = onSetViewMode ?? setViewMode;
 
   // ── Selection preservation for native color picker dialog ───────────────
   const savedSelRef = useRef<Selection | null>(null);
@@ -334,12 +337,13 @@ export function Toolbar({
             { mode: 'split', label: '雙欄' },
             { mode: 'wysiwyg', label: 'WYSIWYG' },
             { mode: 'source', label: '原始碼' },
+            { mode: 'preview', label: '瀏覽' },
           ] as { mode: ViewMode; label: string }[]
         ).map(({ mode, label }) => (
           <button
             key={mode}
             className={`${styles.btn} ${styles.modeBtn} ${viewMode === mode ? styles.active : ''}`}
-            onClick={() => setViewMode(mode)}
+            onClick={() => handleSetViewMode(mode)}
             aria-label={`切換為${label}模式`}
             title={`${label}模式`}
           >

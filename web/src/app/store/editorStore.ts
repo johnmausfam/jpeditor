@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type ViewMode = 'split' | 'wysiwyg' | 'source';
+export type ViewMode = 'split' | 'wysiwyg' | 'source' | 'preview';
 export type FontFamily = 'sans' | 'serif';
 
 interface EditorState {

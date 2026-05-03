@@ -1,0 +1,219 @@
+/* ── Outer wrapper (fills the main area) ── */
+.outer {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Document container ── */
+.document {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 48px 80px;
+  background: #ffffff;
+  min-height: 100%;
+  box-sizing: border-box;
+
+  font-size: 15px;
+  line-height: 1.9;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+/* ── Font families ── */
+.sans {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+}
+
+.serif {
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'YuMincho', serif;
+}
+
+/* ── Typography ── */
+.document > * + * {
+  margin-top: 0.75em;
+}
+
+.document :global(h1) {
+  font-size: 2em;
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.3em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.document :global(h2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.2em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.document :global(h3) {
+  font-size: 1.25em;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+
+.document :global(p) {
+  margin: 0.5em 0;
+}
+
+.document :global(strong) {
+  font-weight: 700;
+}
+
+.document :global(em) {
+  font-style: italic;
+}
+
+.document :global(u) {
+  text-decoration: underline;
+}
+
+.document :global(s) {
+  text-decoration: line-through;
+}
+
+.document :global(ul),
+.document :global(ol) {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.document :global(li) {
+  margin: 0.25em 0;
+}
+
+.document :global(blockquote) {
+  border-left: 4px solid #4a9eff;
+  color: #555;
+  margin: 1em 0;
+  background: #f0f7ff;
+  border-radius: 0 4px 4px 0;
+  padding: 0.75em 1em;
+}
+
+.document :global(code) {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-family: 'Source Han Code JP', 'BIZ UDGothic', 'Courier New', monospace;
+  font-size: 0.875em;
+}
+
+.document :global(pre) {
+  background: #1e2332;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.document :global(pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875em;
+}
+
+.document :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.document :global(th),
+.document :global(td) {
+  border: 1px solid #d1d5db;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.document :global(th) {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.document :global(tr:nth-child(even) td) {
+  background: #fafafa;
+}
+
+.document :global(hr) {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 1.5em 0;
+}
+
+.document :global(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  margin: 0.5em 0;
+}
+
+.document :global(a) {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.document :global(a:hover) {
+  color: #1d4ed8;
+}
+
+/* ── iframe (YouTube embeds) ── */
+.document :global(iframe) {
+  max-width: 100%;
+  border: none;
+  border-radius: 6px;
+  display: block;
+  margin: 1em 0;
+}
+
+/* ── Ruby / furigana ── */
+.document :global(ruby) {
+  ruby-align: center;
+}
+
+.document :global(rt) {
+  font-size: 0.48em;
+  color: #4b5563;
+  font-family: 'Noto Sans JP', sans-serif;
+  line-height: 1.2;
+}
+
+/* ── Floating edit button ── */
+.editBtn {
+  position: fixed;
+  bottom: 48px; /* above the StatusBar */
+  right: 24px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, box-shadow 0.15s;
+  z-index: 100;
+}
+
+.editBtn:hover {
+  background: #334155;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}

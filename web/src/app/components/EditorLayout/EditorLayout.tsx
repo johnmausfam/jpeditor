@@ -44,6 +44,7 @@ import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
 import { DraftDialog } from '../DraftDialog/DraftDialog';
 import { AppDrawer } from '../AppDrawer/AppDrawer';
+import { PreviewPane } from '../PreviewPane/PreviewPane';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -93,8 +94,21 @@ function debounce<T extends (...args: unknown[]) => void>(
 }
 
 export function EditorLayout() {
-  const { viewMode, fontFamily } = useEditorStore();
+  const { viewMode, fontFamily, setViewMode } = useEditorStore();
+  const [prePreviewMode, setPrePreviewMode] = useState<
+    'split' | 'wysiwyg' | 'source'
+  >('split');
   const [markdown, setMarkdown] = useState(DEFAULT_CONTENT);
+
+  const handleSetViewMode = useCallback(
+    (mode: import('../../store/editorStore').ViewMode) => {
+      if (mode === 'preview' && viewMode !== 'preview') {
+        setPrePreviewMode(viewMode as 'split' | 'wysiwyg' | 'source');
+      }
+      setViewMode(mode);
+    },
+    [viewMode, setViewMode],
+  );
 
   // ── Ruby dialog state ────────────────────────────────────────────────────
   const [rubyDialogOpen, setRubyDialogOpen] = useState(false);
@@ -575,8 +589,11 @@ export function EditorLayout() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [handleSave]);
 
-  const showWysiwyg = viewMode === 'split' || viewMode === 'wysiwyg';
-  const showSource = viewMode === 'split' || viewMode === 'source';
+  const isPreview = viewMode === 'preview';
+  const showWysiwyg =
+    !isPreview && (viewMode === 'split' || viewMode === 'wysiwyg');
+  const showSource =
+    !isPreview && (viewMode === 'split' || viewMode === 'source');
 
   return (
     <div className={styles.layout}>
@@ -620,58 +637,72 @@ export function EditorLayout() {
       </header>
 
       {/* ── Toolbar ── */}
-      <Toolbar
-        editor={editor}
-        onRuby={openRubyDialog}
-        onImage={() => setImageDialogOpen(true)}
-        onLink={openLinkDialog}
-        onYoutube={() => setYoutubeDialogOpen(true)}
-      />
+      {!isPreview && (
+        <Toolbar
+          editor={editor}
+          onRuby={openRubyDialog}
+          onImage={() => setImageDialogOpen(true)}
+          onLink={openLinkDialog}
+          onYoutube={() => setYoutubeDialogOpen(true)}
+          onSetViewMode={handleSetViewMode}
+        />
+      )}
+
+      {/* ── Preview pane ── */}
+      {isPreview && (
+        <PreviewPane
+          editor={editor}
+          fontFamily={fontFamily}
+          onEdit={() => handleSetViewMode(prePreviewMode)}
+        />
+      )}
 
       {/* ── Main editor area ── */}
-      <main className={styles.main}>
-        <div className={styles.editorContainer} ref={containerRef}>
-          {showWysiwyg && (
-            <div
-              className={styles.pane}
-              ref={wysiwygPaneRef}
-              style={
-                viewMode === 'split'
-                  ? {
-                      flexBasis: `${splitRatio * 100}%`,
-                      flexGrow: 0,
-                      flexShrink: 0,
-                    }
-                  : {}
-              }
-            >
-              <div className={styles.paneLabel}>WYSIWYG 編輯</div>
-              <div className={styles.paneContent}>
-                <WysiwygEditor editor={editor} fontFamily={fontFamily} />
+      {!isPreview && (
+        <main className={styles.main}>
+          <div className={styles.editorContainer} ref={containerRef}>
+            {showWysiwyg && (
+              <div
+                className={styles.pane}
+                ref={wysiwygPaneRef}
+                style={
+                  viewMode === 'split'
+                    ? {
+                        flexBasis: `${splitRatio * 100}%`,
+                        flexGrow: 0,
+                        flexShrink: 0,
+                      }
+                    : {}
+                }
+              >
+                <div className={styles.paneLabel}>WYSIWYG 編輯</div>
+                <div className={styles.paneContent}>
+                  <WysiwygEditor editor={editor} fontFamily={fontFamily} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {viewMode === 'split' && (
-            <div
-              className={styles.divider}
-              onMouseDown={handleDividerMouseDown}
-              role="separator"
-              aria-label="調整欄位寬度"
-              aria-orientation="vertical"
-            />
-          )}
-
-          {showSource && (
-            <div className={`${styles.pane} ${styles.sourcePaneFlex}`}>
-              <SourceEditor
-                value={markdown}
-                onChange={debouncedSetFromSource}
+            {viewMode === 'split' && (
+              <div
+                className={styles.divider}
+                onMouseDown={handleDividerMouseDown}
+                role="separator"
+                aria-label="調整欄位寬度"
+                aria-orientation="vertical"
               />
-            </div>
-          )}
-        </div>
-      </main>
+            )}
+
+            {showSource && (
+              <div className={`${styles.pane} ${styles.sourcePaneFlex}`}>
+                <SourceEditor
+                  value={markdown}
+                  onChange={debouncedSetFromSource}
+                />
+              </div>
+            )}
+          </div>
+        </main>
+      )}
 
       {/* ── Status bar ── */}
       <StatusBar
