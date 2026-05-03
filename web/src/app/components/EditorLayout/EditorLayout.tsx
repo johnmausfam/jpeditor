@@ -4,11 +4,13 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import { Markdown } from 'tiptap-markdown';
 
+import { RubyExtension } from '../../lib/rubyExtension';
 import { useEditorStore } from '../../store/editorStore';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { WysiwygEditor } from '../WysiwygEditor/WysiwygEditor';
 import { SourceEditor } from '../SourceEditor/SourceEditor';
 import { StatusBar } from '../StatusBar/StatusBar';
+import { RubyDialog } from '../RubyDialog/RubyDialog';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -19,22 +21,24 @@ const DEFAULT_CONTENT = `# 日文講義範例
 
 - ✅ 所見即所得（WYSIWYG）編輯
 - ✅ 即時 Markdown 原始碼雙向同步
-- ✅ 振假名標注（Phase 2）
+- ✅ 振假名標注（{日本語|にほんご}）
 - ✅ Google Drive 整合（Phase 5）
 
-## 日文範例
+## 振假名範例
 
-日本語の文章をここに入力してください。**太字**、*斜体*、\`インラインコード\` などのフォーマットが使えます。
+選取文字後，點擊工具列的「ふ」按鈕或按 \`Ctrl+R\`，即可為文字添加振假名：
 
-> 引用ブロックを使って重要な内容を強調することができます。
+{日本語|にほんご}・{勉強|べんきょう}・{先生|せんせい}・{学生|がくせい}
+
+> {振假名|ふりがな}標注功能讓日文講義更易讀。
 
 ### 表格範例
 
-| 用語   | 読み方     | 意味 |
-| ------ | ---------- | ---- |
-| 日本語 | にほんご   | 日文 |
-| 勉強   | べんきょう | 學習 |
-| 先生   | せんせい   | 老師 |
+| 用語       | 読み方             | 意味 |
+| ---------- | ------------------ | ---- |
+| {日本語|にほんご}  | にほんご   | 日文 |
+| {勉強|べんきょう}  | べんきょう | 學習 |
+| {先生|せんせい}    | せんせい   | 老師 |
 
 ### 程式碼範例
 
@@ -59,6 +63,10 @@ export function EditorLayout() {
   const { viewMode, fontFamily } = useEditorStore();
   const [markdown, setMarkdown] = useState(DEFAULT_CONTENT);
 
+  // ── Ruby dialog state ────────────────────────────────────────────────────
+  const [rubyDialogOpen, setRubyDialogOpen] = useState(false);
+  const [rubySelectedText, setRubySelectedText] = useState('');
+
   // Track which editor was last to update (to prevent sync loops)
   const lastSourceRef = useRef<'wysiwyg' | 'source'>('wysiwyg');
 
@@ -67,6 +75,7 @@ export function EditorLayout() {
     extensions: [
       StarterKit,
       Underline,
+      RubyExtension,
       Markdown.configure({ html: true, transformPastedText: true }),
     ],
     content: DEFAULT_CONTENT,
@@ -103,6 +112,44 @@ export function EditorLayout() {
     // setContent with emitUpdate=false avoids triggering onUpdate → no loop
     editor.commands.setContent(markdown, false);
   }, [markdown, editor]);
+
+  // ── Ruby dialog helpers ──────────────────────────────────────────────────
+  const openRubyDialog = useCallback(() => {
+    if (!editor) return;
+    const { selection, doc } = editor.state;
+    const selectedText = doc.textBetween(selection.from, selection.to, '');
+    setRubySelectedText(selectedText);
+    setRubyDialogOpen(true);
+  }, [editor]);
+
+  // Keep a ref so the document event listener always has the latest version
+  const openRubyDialogRef = useRef(openRubyDialog);
+  useEffect(() => {
+    openRubyDialogRef.current = openRubyDialog;
+  }, [openRubyDialog]);
+
+  // Listen for Ctrl+R shortcut dispatched by RubyExtension keyboard handler
+  useEffect(() => {
+    const handler = () => openRubyDialogRef.current();
+    document.addEventListener('jpeditor:open-ruby', handler);
+    return () => document.removeEventListener('jpeditor:open-ruby', handler);
+  }, []);
+
+  const handleRubyConfirm = useCallback(
+    (reading: string) => {
+      if (!editor) return;
+      editor.chain().focus().setRuby({ text: rubySelectedText, reading }).run();
+      setRubyDialogOpen(false);
+      setRubySelectedText('');
+    },
+    [editor, rubySelectedText],
+  );
+
+  const handleRubyCancel = useCallback(() => {
+    setRubyDialogOpen(false);
+    setRubySelectedText('');
+    editor?.view.focus();
+  }, [editor]);
 
   // ── Derived stats ───────────────────────────────────────────────────────
   const charCount = markdown.replace(/\s/g, '').length;
@@ -149,7 +196,7 @@ export function EditorLayout() {
       </header>
 
       {/* ── Toolbar ── */}
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} onRuby={openRubyDialog} />
 
       {/* ── Main editor area ── */}
       <main className={styles.main}>
@@ -197,6 +244,14 @@ export function EditorLayout() {
 
       {/* ── Status bar ── */}
       <StatusBar charCount={charCount} lineCount={lineCount} />
+
+      {/* ── Ruby dialog (portal-like, rendered at layout root) ── */}
+      <RubyDialog
+        open={rubyDialogOpen}
+        selectedText={rubySelectedText}
+        onConfirm={handleRubyConfirm}
+        onCancel={handleRubyCancel}
+      />
     </div>
   );
 }

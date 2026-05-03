@@ -1,0 +1,176 @@
+/* ── Overlay ────────────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.12s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Dialog box ─────────────────────────────────────────────────────────── */
+.dialog {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 28px 32px 24px;
+  width: 400px;
+  max-width: 92vw;
+  animation: slideUp 0.15s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Title ──────────────────────────────────────────────────────────────── */
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-family: 'Noto Serif JP', serif;
+}
+
+/* ── Live preview box ───────────────────────────────────────────────────── */
+.previewBox {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rubyPreview {
+  font-size: 22px;
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+  line-height: 2.2;
+  ruby-align: center;
+  color: #1e293b;
+}
+
+.rubyPreview rt {
+  font-size: 11px;
+  color: #475569;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ── Fields ─────────────────────────────────────────────────────────────── */
+.field {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.readonlyText {
+  font-size: 15px;
+  font-family: 'Noto Serif JP', serif;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-height: 36px;
+  word-break: break-all;
+}
+
+.placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.input {
+  width: 100%;
+  font-size: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: #1e293b;
+  background: #fff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.15);
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+/* ── Action buttons ─────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cancelBtn,
+.confirmBtn {
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, opacity 0.1s;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.cancelBtn {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.cancelBtn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.confirmBtn {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.confirmBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

@@ -8913,6 +8913,11 @@
       },
       {
         "source": "web",
+        "target": "npm:@tiptap/core",
+        "type": "static"
+      },
+      {
+        "source": "web",
         "target": "npm:zustand",
         "type": "static"
       },
@@ -19815,5 +19820,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1777783820158
+  "computedAt": 1777784525705
 }

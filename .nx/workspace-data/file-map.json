@@ -64,13 +64,24 @@
         },
         {
           "file": "web/src/app/components/EditorLayout/EditorLayout.tsx",
-          "hash": "4492049291544504969",
+          "hash": "2864798232349203026",
           "deps": [
             "npm:react",
             "npm:@tiptap/react",
             "npm:@tiptap/starter-kit",
             "npm:@tiptap/extension-underline",
             "npm:tiptap-markdown"
+          ]
+        },
+        {
+          "file": "web/src/app/components/RubyDialog/RubyDialog.module.css",
+          "hash": "5358460389365535310"
+        },
+        {
+          "file": "web/src/app/components/RubyDialog/RubyDialog.tsx",
+          "hash": "4688891319712591348",
+          "deps": [
+            "npm:react"
           ]
         },
         {
@@ -96,13 +107,20 @@
         },
         {
           "file": "web/src/app/components/Toolbar/Toolbar.module.css",
-          "hash": "9335537341172166326"
+          "hash": "896391237665647860"
         },
         {
           "file": "web/src/app/components/Toolbar/Toolbar.tsx",
-          "hash": "8218248905548745157",
+          "hash": "109792160968657819",
           "deps": [
             "npm:@tiptap/react"
+          ]
+        },
+        {
+          "file": "web/src/app/lib/rubyExtension.ts",
+          "hash": "11568172352110469345",
+          "deps": [
+            "npm:@tiptap/core"
           ]
         },
         {
@@ -168,20 +186,12 @@
           "hash": "16267754514737964994"
         },
         {
-          "file": "dist/web/assets/index-D4FAPbQ7.js",
-          "hash": "15931456476880895634"
-        },
-        {
-          "file": "dist/web/assets/index-x1XGuNl0.css",
-          "hash": "4055606894390288348"
-        },
-        {
           "file": "dist/web/favicon.ico",
           "hash": "9303420814833116677"
         },
         {
           "file": "dist/web/index.html",
-          "hash": "12278409095780981173"
+          "hash": "6562486001962711282"
         },
         {
           "file": "nx.json",

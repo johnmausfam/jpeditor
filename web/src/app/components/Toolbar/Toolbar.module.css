@@ -90,3 +90,18 @@
   padding: 4px 10px;
   min-width: auto;
 }
+
+/* Ruby (furigana) button */
+.rubyBtn {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-size: 14px;
+  color: #7c3aed;
+  font-weight: 600;
+  min-width: 32px;
+}
+
+.rubyBtn:hover {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+}

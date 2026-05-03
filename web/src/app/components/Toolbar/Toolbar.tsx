@@ -5,11 +5,12 @@ import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
   editor: Editor | null;
+  onRuby: () => void;
 }
 
 type HeadingLevel = 1 | 2 | 3;
 
-export function Toolbar({ editor }: ToolbarProps) {
+export function Toolbar({ editor, onRuby }: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
 
   const cmd = (action: () => void) => (e: React.MouseEvent) => {
@@ -153,6 +154,20 @@ export function Toolbar({ editor }: ToolbarProps) {
           title="水平分隔線"
         >
           ——
+        </button>
+      </div>
+
+      <div className={styles.separator} />
+
+      {/* 振假名 */}
+      <div className={styles.group}>
+        <button
+          className={`${styles.btn} ${styles.rubyBtn}`}
+          onClick={onRuby}
+          aria-label="振假名標注"
+          title="振假名（ルビ）標注 (Ctrl+R)"
+        >
+          ふ
         </button>
       </div>
 

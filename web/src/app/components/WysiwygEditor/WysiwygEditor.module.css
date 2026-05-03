@@ -159,14 +159,25 @@
   border-radius: 4px;
 }
 
-/* Ruby (furigana) styles */
+/* Ruby (furigana) styles — line-height ≥ 1.9 ensures rt has room */
 .editorContent :global(.ProseMirror ruby) {
   ruby-align: center;
+  display: inline ruby;
 }
 
 .editorContent :global(.ProseMirror rt) {
-  font-size: 0.5em;
-  color: #555;
+  font-size: 0.48em;
+  color: #4b5563;
+  font-family: 'Noto Sans JP', sans-serif;
+  line-height: 1.2;
+}
+
+/* Ruby atom node: highlight on hover so user knows it's a unit */
+.editorContent :global(.ProseMirror .ProseMirror-selectednode ruby),
+.editorContent :global(.ProseMirror ruby:hover) {
+  background: #ede9fe;
+  border-radius: 2px;
+  cursor: default;
 }
 
 /* Placeholder */
