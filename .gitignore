@@ -47,5 +47,7 @@ desktop.ini
 # Test coverage
 coverage/
 
-# daemon logs
-.nx/workspace-data/d/daemon.log
+# nx
+.nx/workspace-data/
+.nx/cache/
+.nx
