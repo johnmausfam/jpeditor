@@ -4215,6 +4215,11 @@
     "type": "static"
   },
   {
+    "source": "npm:@tiptap/extension-color",
+    "target": "npm:@tiptap/extension-text-style",
+    "type": "static"
+  },
+  {
     "source": "npm:@tiptap/extension-document",
     "target": "npm:@tiptap/core",
     "type": "static"
@@ -4251,6 +4256,11 @@
   },
   {
     "source": "npm:@tiptap/extension-heading",
+    "target": "npm:@tiptap/core",
+    "type": "static"
+  },
+  {
+    "source": "npm:@tiptap/extension-highlight",
     "target": "npm:@tiptap/core",
     "type": "static"
   },
@@ -4321,6 +4331,11 @@
   },
   {
     "source": "npm:@tiptap/extension-text",
+    "target": "npm:@tiptap/core",
+    "type": "static"
+  },
+  {
+    "source": "npm:@tiptap/extension-text-style",
     "target": "npm:@tiptap/core",
     "type": "static"
   },

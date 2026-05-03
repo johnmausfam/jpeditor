@@ -3051,6 +3051,15 @@
         "hash": "sha512-d123kCfLdJTi4fue1m0+TNFztDkmIRSZGZmGu6H9KqwG5Q7IzjT9o8lzRsz+pXxYqHvqgYmXoEpM6srbzXx/Ag=="
       }
     },
+    "npm:@tiptap/extension-color": {
+      "type": "npm",
+      "name": "npm:@tiptap/extension-color",
+      "data": {
+        "version": "3.22.5",
+        "packageName": "@tiptap/extension-color",
+        "hash": "sha512-4aTygOUlTFBYCvJy67SeKVdXCQw7du3Rj+N5ZutVnDnrpfzUBWsO7f+I+iDS8eMQFbWxVFLlWxGMcTbjtk1a+Q=="
+      }
+    },
     "npm:@tiptap/extension-document": {
       "type": "npm",
       "name": "npm:@tiptap/extension-document",
@@ -3103,6 +3112,15 @@
         "version": "3.22.5",
         "packageName": "@tiptap/extension-heading",
         "hash": "sha512-hjyEG4947PAhMBfP1G6B0QAh6+y9mp2C5BQmNjprA05/lQzDAT7KFZzNh8ZVp3ol6aICKq/N1gFOW9Dc/9FUOw=="
+      }
+    },
+    "npm:@tiptap/extension-highlight": {
+      "type": "npm",
+      "name": "npm:@tiptap/extension-highlight",
+      "data": {
+        "version": "3.22.5",
+        "packageName": "@tiptap/extension-highlight",
+        "hash": "sha512-byWruAOKcqRN0OuzVSKqLLrced3M9AZaR2pD1BV3aUZHzMzeBjLBfByh8s4lExH2Z547xQUdHHnUflBQ572I5A=="
       }
     },
     "npm:@tiptap/extension-horizontal-rule": {
@@ -3193,6 +3211,15 @@
         "version": "3.22.5",
         "packageName": "@tiptap/extension-text",
         "hash": "sha512-bzpDOdAEo1JeoVZDIyV0oY0jGXkEG+AzF70SzHoRSjOvFDtKWunyXf9eO1OnOr2/fmMcckT2qwUBNBMQplWBzw=="
+      }
+    },
+    "npm:@tiptap/extension-text-style": {
+      "type": "npm",
+      "name": "npm:@tiptap/extension-text-style",
+      "data": {
+        "version": "3.22.5",
+        "packageName": "@tiptap/extension-text-style",
+        "hash": "sha512-jt63jy8YbhZJUGMxTUzeivLhowGtFp6YbCFrrmZJ7G6IHu8X8LJzO81ksz5nT5l8DKpldGwnINUfA6iE91JIAg=="
       }
     },
     "npm:@tiptap/extension-underline": {
@@ -8877,12 +8904,14 @@
     "node_modules/@tiptap/extension-bullet-list": "npm:@tiptap/extension-bullet-list",
     "node_modules/@tiptap/extension-code": "npm:@tiptap/extension-code",
     "node_modules/@tiptap/extension-code-block": "npm:@tiptap/extension-code-block",
+    "node_modules/@tiptap/extension-color": "npm:@tiptap/extension-color",
     "node_modules/@tiptap/extension-document": "npm:@tiptap/extension-document",
     "node_modules/@tiptap/extension-dropcursor": "npm:@tiptap/extension-dropcursor",
     "node_modules/@tiptap/extension-floating-menu": "npm:@tiptap/extension-floating-menu",
     "node_modules/@tiptap/extension-gapcursor": "npm:@tiptap/extension-gapcursor",
     "node_modules/@tiptap/extension-hard-break": "npm:@tiptap/extension-hard-break",
     "node_modules/@tiptap/extension-heading": "npm:@tiptap/extension-heading",
+    "node_modules/@tiptap/extension-highlight": "npm:@tiptap/extension-highlight",
     "node_modules/@tiptap/extension-horizontal-rule": "npm:@tiptap/extension-horizontal-rule",
     "node_modules/@tiptap/extension-italic": "npm:@tiptap/extension-italic",
     "node_modules/@tiptap/extension-link": "npm:@tiptap/extension-link",
@@ -8893,6 +8922,7 @@
     "node_modules/@tiptap/extension-paragraph": "npm:@tiptap/extension-paragraph",
     "node_modules/@tiptap/extension-strike": "npm:@tiptap/extension-strike",
     "node_modules/@tiptap/extension-text": "npm:@tiptap/extension-text",
+    "node_modules/@tiptap/extension-text-style": "npm:@tiptap/extension-text-style",
     "node_modules/@tiptap/extension-underline": "npm:@tiptap/extension-underline",
     "node_modules/@tiptap/extensions": "npm:@tiptap/extensions",
     "node_modules/@tiptap/pm": "npm:@tiptap/pm",

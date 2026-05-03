@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
 import { Markdown } from 'tiptap-markdown';
 
 import { RubyExtension } from '../../lib/rubyExtension';
@@ -77,6 +80,9 @@ export function EditorLayout() {
     extensions: [
       StarterKit,
       Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
       RubyExtension,
       Markdown.configure({ html: true, transformPastedText: true }),
     ],
@@ -120,8 +126,10 @@ export function EditorLayout() {
     if (!editor) return;
     const { selection, doc } = editor.state;
     const selectedText = doc.textBetween(selection.from, selection.to, '');
-    setRubySelectedText(selectedText);    setRubyInitialReading('');
-    setRubyEditPos(-1);    setRubyDialogOpen(true);
+    setRubySelectedText(selectedText);
+    setRubyInitialReading('');
+    setRubyEditPos(-1);
+    setRubyDialogOpen(true);
   }, [editor]);
 
   // Keep a ref so the document event listener always has the latest version
@@ -164,7 +172,11 @@ export function EditorLayout() {
           .run();
       } else {
         // Insert mode: replace selected text with new ruby node
-        editor.chain().focus().setRuby({ text: rubySelectedText, reading }).run();
+        editor
+          .chain()
+          .focus()
+          .setRuby({ text: rubySelectedText, reading })
+          .run();
       }
       setRubyDialogOpen(false);
       setRubySelectedText('');

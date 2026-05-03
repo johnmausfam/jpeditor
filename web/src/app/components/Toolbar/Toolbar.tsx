@@ -1,6 +1,13 @@
+import { useRef } from 'react';
 import type { Editor } from '@tiptap/react';
+import type { Selection } from '@tiptap/pm/state';
 import { useEditorStore } from '../../store/editorStore';
 import type { ViewMode, FontFamily } from '../../store/editorStore';
+import {
+  ColorPicker,
+  TEXT_COLOR_PRESETS,
+  HIGHLIGHT_PRESETS,
+} from '../ColorPicker/ColorPicker';
 import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
@@ -13,6 +20,53 @@ type HeadingLevel = 1 | 2 | 3;
 export function Toolbar({ editor, onRuby }: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
 
+  // ── Selection preservation for native color picker dialog ───────────────
+  const savedSelRef = useRef<Selection | null>(null);
+
+  const saveSelection = () => {
+    if (editor) savedSelRef.current = editor.view.state.selection;
+  };
+
+  const restoreSelection = () => {
+    if (editor && savedSelRef.current) {
+      try {
+        editor.view.dispatch(
+          editor.view.state.tr.setSelection(savedSelRef.current),
+        );
+      } catch {
+        // selection became invalid (e.g. document changed) — proceed anyway
+      }
+      savedSelRef.current = null;
+    }
+  };
+
+  // ── Color / highlight commands ───────────────────────────────────────────
+  const applyTextColor = (color: string) => {
+    restoreSelection();
+    editor?.chain().focus().setColor(color).run();
+  };
+
+  const removeTextColor = () => {
+    restoreSelection();
+    editor?.chain().focus().unsetColor().run();
+  };
+
+  const applyHighlight = (color: string) => {
+    restoreSelection();
+    editor?.chain().focus().setHighlight({ color }).run();
+  };
+
+  const removeHighlight = () => {
+    restoreSelection();
+    editor?.chain().focus().unsetHighlight().run();
+  };
+
+  const currentTextColor =
+    (editor?.getAttributes('textStyle').color as string | undefined) ?? null;
+  const currentHighlight =
+    (editor?.getAttributes('highlight').color as string | undefined) ?? null;
+
+  // ── Generic helpers ──────────────────────────────────────────────────────
   const cmd = (action: () => void) => (e: React.MouseEvent) => {
     e.preventDefault();
     action();
@@ -79,6 +133,36 @@ export function Toolbar({ editor, onRuby }: ToolbarProps) {
         >
           S
         </button>
+      </div>
+
+      <div className={styles.separator} />
+
+      {/* 文字顏色 & 螢光筆 */}
+      <div className={styles.group}>
+        <ColorPicker
+          label="A"
+          currentColor={currentTextColor}
+          presetColors={TEXT_COLOR_PRESETS}
+          swatchType="text"
+          onApply={applyTextColor}
+          onClear={removeTextColor}
+          onSaveSelection={saveSelection}
+          ariaLabel="文字顏色"
+          title="文字顏色"
+          disabled={!editor}
+        />
+        <ColorPicker
+          label="Ab"
+          currentColor={currentHighlight}
+          presetColors={HIGHLIGHT_PRESETS}
+          swatchType="highlight"
+          onApply={applyHighlight}
+          onClear={removeHighlight}
+          onSaveSelection={saveSelection}
+          ariaLabel="螢光筆底色"
+          title="螢光筆底色"
+          disabled={!editor}
+        />
       </div>
 
       <div className={styles.separator} />

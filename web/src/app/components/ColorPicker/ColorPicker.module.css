@@ -1,0 +1,149 @@
+.container {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Trigger button ─────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px 3px;
+  min-width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 1px;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.btn.active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.labelText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1;
+}
+
+/* Color swatch strip shown below the label */
+.swatch {
+  display: block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* ── Dropdown panel ──────────────────────────────────────────────────────── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 300;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  min-width: 152px;
+}
+
+/* 5-column grid for presets */
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 24px);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.colorSwatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.1s, border-color 0.1s;
+  padding: 0;
+}
+
+.colorSwatch:hover {
+  transform: scale(1.15);
+  border-color: #6b7280;
+}
+
+.colorSwatch.selected {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 1px #1d4ed8;
+}
+
+/* Black swatch needs a visible border */
+.colorSwatch[style*='#000000'],
+.colorSwatch[style*='rgb(0, 0, 0)'] {
+  border-color: #9ca3af;
+}
+
+/* ── Custom color input row ──────────────────────────────────────────────── */
+.customRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 2px;
+}
+
+.customLabel {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.customInput {
+  width: 34px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+}
+
+/* ── Clear button ────────────────────────────────────────────────────────── */
+.clearBtn {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 4px 0;
+  font-size: 11px;
+  color: #6b7280;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.clearBtn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
