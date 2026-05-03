@@ -30,52 +30,6 @@
   "fileMap": {
     "nonProjectFiles": [],
     "projectFileMap": {
-      "jpeditor": [
-        {
-          "file": ".gitignore",
-          "hash": "9321850054713029732"
-        },
-        {
-          "file": ".prettierignore",
-          "hash": "14688272390704683536"
-        },
-        {
-          "file": ".prettierrc",
-          "hash": "16267754514737964994"
-        },
-        {
-          "file": "devlog/phase1.md",
-          "hash": "6533084362644946104"
-        },
-        {
-          "file": "devlog/phase2.md",
-          "hash": "3443514673441458703"
-        },
-        {
-          "file": "nx.json",
-          "hash": "10017331704250745917"
-        },
-        {
-          "file": "package-lock.json",
-          "hash": "11616926597917318740"
-        },
-        {
-          "file": "package.json",
-          "hash": "15958211932181986821"
-        },
-        {
-          "file": "spec/requirements.md",
-          "hash": "5201321173343814013"
-        },
-        {
-          "file": "tsconfig.base.json",
-          "hash": "6168545919368987137"
-        },
-        {
-          "file": "vitest.workspace.ts",
-          "hash": "4665328684042819579"
-        }
-      ],
       "web": [
         {
           "file": "web/index.html",
@@ -106,11 +60,11 @@
         },
         {
           "file": "web/src/app/components/ColorPicker/ColorPicker.module.css",
-          "hash": "4221461899395038957"
+          "hash": "6546815048095035609"
         },
         {
           "file": "web/src/app/components/ColorPicker/ColorPicker.tsx",
-          "hash": "17023692123442284401",
+          "hash": "12559026417753992307",
           "deps": [
             "npm:react"
           ]
@@ -121,7 +75,7 @@
         },
         {
           "file": "web/src/app/components/EditorLayout/EditorLayout.tsx",
-          "hash": "2808292708235042415",
+          "hash": "1759191916299462722",
           "deps": [
             "npm:react",
             "npm:@tiptap/react",
@@ -130,8 +84,13 @@
             "npm:@tiptap/extension-text-style",
             "npm:@tiptap/extension-color",
             "npm:@tiptap/extension-highlight",
+            "npm:@tiptap/extension-image",
             "npm:tiptap-markdown"
           ]
+        },
+        {
+          "file": "web/src/app/components/ImageDialog/ImageDialog.module.css",
+          "hash": "17062966987718397885"
         },
         {
           "file": "web/src/app/components/RubyDialog/RubyDialog.module.css",
@@ -167,11 +126,11 @@
         },
         {
           "file": "web/src/app/components/Toolbar/Toolbar.module.css",
-          "hash": "896391237665647860"
+          "hash": "7792713003275285992"
         },
         {
           "file": "web/src/app/components/Toolbar/Toolbar.tsx",
-          "hash": "11412606164664137219",
+          "hash": "2695107493301714216",
           "deps": [
             "npm:react",
             "npm:@tiptap/react",
@@ -180,7 +139,7 @@
         },
         {
           "file": "web/src/app/components/WysiwygEditor/WysiwygEditor.module.css",
-          "hash": "1899025683653023168"
+          "hash": "4007067723960470333"
         },
         {
           "file": "web/src/app/components/WysiwygEditor/WysiwygEditor.tsx",
@@ -195,6 +154,14 @@
           "deps": [
             "npm:@tiptap/core",
             "npm:@tiptap/pm"
+          ]
+        },
+        {
+          "file": "web/src/app/lib/useImageInsert.ts",
+          "hash": "18062837765562831141",
+          "deps": [
+            "npm:react",
+            "npm:@tiptap/react"
           ]
         },
         {
@@ -245,8 +212,58 @@
             "npm:@nx/vite"
           ]
         }
+      ],
+      "jpeditor": [
+        {
+          "file": ".gitignore",
+          "hash": "9321850054713029732"
+        },
+        {
+          "file": ".prettierignore",
+          "hash": "14688272390704683536"
+        },
+        {
+          "file": ".prettierrc",
+          "hash": "16267754514737964994"
+        },
+        {
+          "file": "devlog/phase1.md",
+          "hash": "6533084362644946104"
+        },
+        {
+          "file": "devlog/phase2.md",
+          "hash": "3443514673441458703"
+        },
+        {
+          "file": "devlog/phase3.md",
+          "hash": "2216555594951509869"
+        },
+        {
+          "file": "nx.json",
+          "hash": "10017331704250745917"
+        },
+        {
+          "file": "package-lock.json",
+          "hash": "6326420552107467595"
+        },
+        {
+          "file": "package.json",
+          "hash": "1610898247681426811"
+        },
+        {
+          "file": "spec/requirements.md",
+          "hash": "5201321173343814013"
+        },
+        {
+          "file": "tsconfig.base.json",
+          "hash": "6168545919368987137"
+        },
+        {
+          "file": "vitest.workspace.ts",
+          "hash": "4665328684042819579"
+        }
       ]
     }
   },
-  "externalNodesHash": "11351184067791947507"
+  "externalNodesHash": "4087791189464521371"
 }

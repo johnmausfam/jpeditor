@@ -105,3 +105,14 @@
   border-color: #c4b5fd;
   color: #6d28d9;
 }
+
+/* Image insert button */
+.imageBtn {
+  font-size: 15px;
+  min-width: 32px;
+}
+
+.imageBtn:hover {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}

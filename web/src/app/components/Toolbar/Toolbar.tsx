@@ -13,11 +13,12 @@ import styles from './Toolbar.module.css';
 interface ToolbarProps {
   editor: Editor | null;
   onRuby: () => void;
+  onImage: () => void;
 }
 
 type HeadingLevel = 1 | 2 | 3;
 
-export function Toolbar({ editor, onRuby }: ToolbarProps) {
+export function Toolbar({ editor, onRuby, onImage }: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
 
   // ── Selection preservation for native color picker dialog ───────────────
@@ -252,6 +253,14 @@ export function Toolbar({ editor, onRuby }: ToolbarProps) {
           title="振假名（ルビ）標注 (Ctrl+R)"
         >
           ふ
+        </button>
+        <button
+          className={`${styles.btn} ${styles.imageBtn}`}
+          onClick={onImage}
+          aria-label="插入圖片"
+          title="插入圖片（URL）"
+        >
+          🖼
         </button>
       </div>
 

@@ -157,6 +157,17 @@
   max-width: 100%;
   height: auto;
   border-radius: 4px;
+  display: block;
+  margin: 0.5em 0;
+}
+
+/* Selection highlight is handled by the ResizableImage NodeView directly */
+
+/* Drag-over visual feedback */
+.container.dragOver {
+  outline: 2px dashed #2563eb;
+  outline-offset: -2px;
+  background: #eff6ff;
 }
 
 /* Ruby (furigana) styles — line-height ≥ 1.9 ensures rt has room */

@@ -5,15 +5,18 @@ import Underline from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
+import { ResizableImageExtension } from '../../lib/ResizableImageExtension';
 import { Markdown } from 'tiptap-markdown';
 
 import { RubyExtension } from '../../lib/rubyExtension';
+import { useImageInsert } from '../../lib/useImageInsert';
 import { useEditorStore } from '../../store/editorStore';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { WysiwygEditor } from '../WysiwygEditor/WysiwygEditor';
 import { SourceEditor } from '../SourceEditor/SourceEditor';
 import { StatusBar } from '../StatusBar/StatusBar';
 import { RubyDialog } from '../RubyDialog/RubyDialog';
+import { ImageDialog } from '../ImageDialog/ImageDialog';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -72,6 +75,12 @@ export function EditorLayout() {
   const [rubyInitialReading, setRubyInitialReading] = useState('');
   const [rubyEditPos, setRubyEditPos] = useState(-1); // -1 = insert mode
 
+  // ── Image dialog state ───────────────────────────────────────────────────
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
+  // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
+  const wysiwygPaneRef = useRef<HTMLDivElement>(null);
+
   // Track which editor was last to update (to prevent sync loops)
   const lastSourceRef = useRef<'wysiwyg' | 'source'>('wysiwyg');
 
@@ -83,6 +92,7 @@ export function EditorLayout() {
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
+      ResizableImageExtension.configure({ inline: false, allowBase64: true }),
       RubyExtension,
       Markdown.configure({ html: true, transformPastedText: true }),
     ],
@@ -194,6 +204,23 @@ export function EditorLayout() {
     editor?.view.focus();
   }, [editor]);
 
+  // ── Image helpers ────────────────────────────────────────────────────────
+  const handleImageConfirm = useCallback(
+    (src: string, alt: string) => {
+      editor?.chain().focus().setImage({ src, alt }).run();
+      setImageDialogOpen(false);
+    },
+    [editor],
+  );
+
+  const handleImageCancel = useCallback(() => {
+    setImageDialogOpen(false);
+    editor?.view.focus();
+  }, [editor]);
+
+  // Paste / drag-drop image insertion into the WYSIWYG pane
+  useImageInsert({ editor, targetEl: wysiwygPaneRef.current });
+
   // ── Derived stats ───────────────────────────────────────────────────────
   const charCount = markdown.replace(/\s/g, '').length;
   const lineCount = markdown.split('\n').length;
@@ -239,7 +266,11 @@ export function EditorLayout() {
       </header>
 
       {/* ── Toolbar ── */}
-      <Toolbar editor={editor} onRuby={openRubyDialog} />
+      <Toolbar
+        editor={editor}
+        onRuby={openRubyDialog}
+        onImage={() => setImageDialogOpen(true)}
+      />
 
       {/* ── Main editor area ── */}
       <main className={styles.main}>
@@ -247,6 +278,7 @@ export function EditorLayout() {
           {showWysiwyg && (
             <div
               className={styles.pane}
+              ref={wysiwygPaneRef}
               style={
                 viewMode === 'split'
                   ? {
@@ -296,6 +328,13 @@ export function EditorLayout() {
         isEditing={rubyEditPos >= 0}
         onConfirm={handleRubyConfirm}
         onCancel={handleRubyCancel}
+      />
+
+      {/* ── Image URL dialog ── */}
+      <ImageDialog
+        open={imageDialogOpen}
+        onConfirm={handleImageConfirm}
+        onCancel={handleImageCancel}
       />
     </div>
   );

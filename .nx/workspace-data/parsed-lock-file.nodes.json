@@ -3132,6 +3132,15 @@
         "hash": "sha512-vUV0/ugIbXOc8SJib0h8UMhgcqZXWu/dkEhlswZN4VVven1o5enkfxEiDw+OyIJHi5rUkrdhsQ/KTxG/Xb7X8A=="
       }
     },
+    "npm:@tiptap/extension-image": {
+      "type": "npm",
+      "name": "npm:@tiptap/extension-image",
+      "data": {
+        "version": "3.22.5",
+        "packageName": "@tiptap/extension-image",
+        "hash": "sha512-ezMzA6w6UsPesQp6fxTQojI/IkGJLmkwR/VGTimva7sudP3HdSW8k3SGBkjfvp0L2xqUrC/l4nWOchu01A/xtQ=="
+      }
+    },
     "npm:@tiptap/extension-italic": {
       "type": "npm",
       "name": "npm:@tiptap/extension-italic",
@@ -8913,6 +8922,7 @@
     "node_modules/@tiptap/extension-heading": "npm:@tiptap/extension-heading",
     "node_modules/@tiptap/extension-highlight": "npm:@tiptap/extension-highlight",
     "node_modules/@tiptap/extension-horizontal-rule": "npm:@tiptap/extension-horizontal-rule",
+    "node_modules/@tiptap/extension-image": "npm:@tiptap/extension-image",
     "node_modules/@tiptap/extension-italic": "npm:@tiptap/extension-italic",
     "node_modules/@tiptap/extension-link": "npm:@tiptap/extension-link",
     "node_modules/@tiptap/extension-list": "npm:@tiptap/extension-list",

@@ -4275,6 +4275,11 @@
     "type": "static"
   },
   {
+    "source": "npm:@tiptap/extension-image",
+    "target": "npm:@tiptap/core",
+    "type": "static"
+  },
+  {
     "source": "npm:@tiptap/extension-italic",
     "target": "npm:@tiptap/core",
     "type": "static"

@@ -3454,6 +3454,15 @@
         "hash": "sha512-vUV0/ugIbXOc8SJib0h8UMhgcqZXWu/dkEhlswZN4VVven1o5enkfxEiDw+OyIJHi5rUkrdhsQ/KTxG/Xb7X8A=="
       }
     },
+    "npm:@tiptap/extension-image": {
+      "type": "npm",
+      "name": "npm:@tiptap/extension-image",
+      "data": {
+        "version": "3.22.5",
+        "packageName": "@tiptap/extension-image",
+        "hash": "sha512-ezMzA6w6UsPesQp6fxTQojI/IkGJLmkwR/VGTimva7sudP3HdSW8k3SGBkjfvp0L2xqUrC/l4nWOchu01A/xtQ=="
+      }
+    },
     "npm:@tiptap/extension-italic": {
       "type": "npm",
       "name": "npm:@tiptap/extension-italic",
@@ -8935,6 +8944,11 @@
       },
       {
         "source": "web",
+        "target": "npm:@tiptap/extension-image",
+        "type": "static"
+      },
+      {
+        "source": "web",
         "target": "npm:tiptap-markdown",
         "type": "static"
       },
@@ -13679,6 +13693,13 @@
       {
         "source": "npm:@tiptap/extension-horizontal-rule",
         "target": "npm:@tiptap/pm",
+        "type": "static"
+      }
+    ],
+    "npm:@tiptap/extension-image": [
+      {
+        "source": "npm:@tiptap/extension-image",
+        "target": "npm:@tiptap/core",
         "type": "static"
       }
     ],
@@ -19888,5 +19909,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1777786708103
+  "computedAt": 1777787751568
 }
