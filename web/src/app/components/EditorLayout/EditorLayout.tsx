@@ -15,6 +15,8 @@ import {
   fetchUserInfo,
   listMarkdownFiles,
   downloadFileContent,
+  createDriveFile,
+  updateDriveFile,
 } from '../../lib/googleDriveApi';
 import { useDriveStore } from '../../store/driveStore';
 import { useEditorStore } from '../../store/editorStore';
@@ -25,6 +27,7 @@ import { StatusBar } from '../StatusBar/StatusBar';
 import { RubyDialog } from '../RubyDialog/RubyDialog';
 import { ImageDialog } from '../ImageDialog/ImageDialog';
 import { DrivePanel } from '../DrivePanel/DrivePanel';
+import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import styles from './EditorLayout.module.css';
 
 const DEFAULT_CONTENT = `# 日文講義範例
@@ -88,7 +91,9 @@ export function EditorLayout() {
 
   // ── Google Drive state ───────────────────────────────────────────────────
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
-  const { isLoggedIn, userName, userEmail } = useDriveStore();
+  const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } = useDriveStore();
 
   // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
   const wysiwygPaneRef = useRef<HTMLDivElement>(null);
@@ -289,20 +294,70 @@ export function EditorLayout() {
    */
   const handleOpenDriveFile = useCallback(
     async (fileId: string, fileName: string) => {
-      const { accessToken, setError } = useDriveStore.getState();
+      const { accessToken, setError, setCurrentFile } = useDriveStore.getState();
       if (!accessToken) return;
       try {
         const content = await downloadFileContent(accessToken, fileId);
         lastSourceRef.current = 'source';
         setMarkdown(content);
+        setCurrentFile(fileId, fileName);
         setDrivePanelOpen(false);
       } catch (e) {
         setError(`開啟「${fileName}」失敗：${(e as Error).message}`);
       }
     },
-    // setMarkdown is a stable state-setter reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
+  );
+
+  /** Save (overwrite) the currently open Drive file. */
+  const handleSave = useCallback(async () => {
+    const { accessToken, currentFileId: fid, folderId, setError } =
+      useDriveStore.getState();
+    if (!accessToken) return;
+    if (!fid) {
+      setSaveAsDialogOpen(true);
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateDriveFile(accessToken, fid, markdown);
+      if (folderId) {
+        const files = await listMarkdownFiles(accessToken, folderId);
+        useDriveStore.getState().setFiles(files);
+      }
+    } catch (e) {
+      setError(`儲存失敗：${(e as Error).message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [markdown]);
+
+  /** Save As: create a new Drive file with a chosen name. */
+  const handleSaveAs = useCallback(
+    async (fileName: string) => {
+      const { accessToken, folderId, setError, setCurrentFile } =
+        useDriveStore.getState();
+      if (!accessToken) return;
+      if (!folderId) {
+        setError('請先在「Drive 文件」面板設定工作目錄 ID。');
+        setSaveAsDialogOpen(false);
+        return;
+      }
+      setIsSaving(true);
+      setSaveAsDialogOpen(false);
+      try {
+        const newId = await createDriveFile(accessToken, folderId, fileName, markdown);
+        setCurrentFile(newId, fileName.endsWith('.md') ? fileName : `${fileName}.md`);
+        const files = await listMarkdownFiles(accessToken, folderId);
+        useDriveStore.getState().setFiles(files);
+      } catch (e) {
+        setError(`另存失敗：${(e as Error).message}`);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [markdown],
   );
 
   // Paste / drag-drop image insertion into the WYSIWYG pane
@@ -342,6 +397,20 @@ export function EditorLayout() {
     };
   }, []);
 
+  // ── Ctrl+S to save ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (useDriveStore.getState().isLoggedIn) {
+          handleSave();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleSave]);
+
   const showWysiwyg = viewMode === 'split' || viewMode === 'wysiwyg';
   const showSource = viewMode === 'split' || viewMode === 'source';
 
@@ -349,10 +418,28 @@ export function EditorLayout() {
     <div className={styles.layout}>
       {/* ── Header ── */}
       <header className={styles.header}>
-        <span className={styles.logo}>日文講義エディター</span>
+        <span className={styles.logo}>
+          {currentFileName ?? '日文講義エディター'}
+        </span>
         <div className={styles.headerActions}>
           {isLoggedIn ? (
             <>
+              <button
+                className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
+                onClick={handleSave}
+                disabled={isSaving}
+                title={currentFileId ? `儲存至 ${currentFileName ?? 'Drive'}` : '另存新檔至 Drive'}
+              >
+                {isSaving ? '儲存中…' : '💾 儲存'}
+              </button>
+              <button
+                className={styles.headerBtn}
+                onClick={() => setSaveAsDialogOpen(true)}
+                disabled={isSaving}
+                title="另存新檔"
+              >
+                另存新檔
+              </button>
               <button
                 className={styles.headerBtn}
                 onClick={() => {
@@ -464,6 +551,14 @@ export function EditorLayout() {
         onClose={() => setDrivePanelOpen(false)}
         onOpenFile={handleOpenDriveFile}
         onRefresh={handleLoadDriveFiles}
+      />
+
+      {/* ── Save As dialog ── */}
+      <SaveAsDialog
+        open={saveAsDialogOpen}
+        defaultFileName={currentFileName ?? ''}
+        onConfirm={handleSaveAs}
+        onCancel={() => setSaveAsDialogOpen(false)}
       />
     </div>
   );

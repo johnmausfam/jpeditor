@@ -90,7 +90,7 @@
         },
         {
           "file": "web/src/app/components/EditorLayout/EditorLayout.tsx",
-          "hash": "6791942132108245149",
+          "hash": "8951207153035648673",
           "deps": [
             "npm:react",
             "npm:@tiptap/react",
@@ -125,6 +125,10 @@
           ]
         },
         {
+          "file": "web/src/app/components/SaveAsDialog/SaveAsDialog.module.css",
+          "hash": "15464383743190603978"
+        },
+        {
           "file": "web/src/app/components/SourceEditor/SourceEditor.module.css",
           "hash": "4946243420894289319"
         },
@@ -139,11 +143,11 @@
         },
         {
           "file": "web/src/app/components/StatusBar/StatusBar.module.css",
-          "hash": "1272208380323539696"
+          "hash": "14328552683921174621"
         },
         {
           "file": "web/src/app/components/StatusBar/StatusBar.tsx",
-          "hash": "17800432219232999058"
+          "hash": "3911675459072370902"
         },
         {
           "file": "web/src/app/components/Toolbar/Toolbar.module.css",
@@ -184,7 +188,7 @@
         },
         {
           "file": "web/src/app/lib/googleDriveApi.ts",
-          "hash": "3858933256431841902"
+          "hash": "13708421861368674847"
         },
         {
           "file": "web/src/app/lib/rubyExtension.ts",
@@ -208,7 +212,7 @@
         },
         {
           "file": "web/src/app/store/driveStore.ts",
-          "hash": "8460790156518254609",
+          "hash": "15790732383179656853",
           "deps": [
             "npm:zustand"
           ]
@@ -290,6 +294,14 @@
         {
           "file": "devlog/phase4.md",
           "hash": "18317909425619759280"
+        },
+        {
+          "file": "devlog/phase5.md",
+          "hash": "4854773623170078148"
+        },
+        {
+          "file": "devlog/phase6.md",
+          "hash": "15823544102393801757"
         },
         {
           "file": "nx.json",

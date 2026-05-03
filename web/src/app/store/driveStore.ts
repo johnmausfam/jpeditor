@@ -34,6 +34,10 @@ interface DriveState {
   files: DriveFile[];
   /** Google Drive folder ID of the current working directory. */
   folderId: string;
+  /** ID of the currently open Drive file (null = new / unsaved). */
+  currentFileId: string | null;
+  /** File name of the currently open Drive file. */
+  currentFileName: string | null;
   isLoadingFiles: boolean;
   error: string | null;
 
@@ -49,6 +53,7 @@ interface DriveState {
   setFiles: (files: DriveFile[]) => void;
   /** Persist folder ID to localStorage. */
   setFolderId: (id: string) => void;
+  setCurrentFile: (id: string | null, name: string | null) => void;
   setLoadingFiles: (v: boolean) => void;
   setError: (error: string | null) => void;
 }
@@ -85,6 +90,8 @@ export const useDriveStore = create<DriveState>((set) => ({
   ...restoreAuth(),
   files: [],
   folderId: localStorage.getItem(LS_FOLDER) ?? '',
+  currentFileId: null,
+  currentFileName: null,
   isLoadingFiles: false,
   error: null,
 
@@ -113,6 +120,8 @@ export const useDriveStore = create<DriveState>((set) => ({
       userName: null,
       userPicture: null,
       files: [],
+      currentFileId: null,
+      currentFileName: null,
       error: null,
     });
   },
@@ -123,6 +132,8 @@ export const useDriveStore = create<DriveState>((set) => ({
     localStorage.setItem(LS_FOLDER, id);
     set({ folderId: id });
   },
+
+  setCurrentFile: (id, name) => set({ currentFileId: id, currentFileName: name }),
 
   setLoadingFiles: (v) => set({ isLoadingFiles: v }),
   setError: (error) => set({ error }),
