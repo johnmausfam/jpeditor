@@ -9484,3 +9484,42 @@ Time taken for 'build typescript dependencies' 0.11920000000009168ms
 [NX v22.7.1 Daemon Server] - 2026-05-03T05:02:05.716Z - Received json message of type REGISTER_FILE_WATCHER
 [NX v22.7.1 Daemon Server] - 2026-05-03T05:02:05.741Z - Closed a connection. Number of open connections: 7
 [NX v22.7.1 Daemon Server] - 2026-05-03T05:02:05.752Z - Closed a connection. Number of open connections: 6
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.511Z - [WATCHER]: .gitignore was modified
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - [WATCHER]: File changes detected:
+Created:
+(none)
+Updated:
+  - .gitignore
+Deleted:
+(none)
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - [SYNC]: clearing sync generators cache due to file changes
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Serializing response for FILE-WATCH-CHANGED message in json mode
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Responding to FILE-WATCH-CHANGED message
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - [REQUEST]: Responding to the client. File watch changed
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.512Z - [FileWatcher] Socket closed, triggering reconnection
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.512Z - [FileWatcher] Socket closed, triggering reconnection
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Serializing response for FILE-WATCH-CHANGED message in json mode
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Responding to FILE-WATCH-CHANGED message
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - [REQUEST]: Responding to the client. File watch changed
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.513Z - [FileWatcher] Starting reconnection for 1 callbacks
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Socket write error (client likely disconnected): Cannot call write after a stream was destroyed
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Done responding to the client File watch changed
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Socket write error (client likely disconnected): Cannot call write after a stream was destroyed
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Done responding to the client File watch changed
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.512Z - Handled json message FILE-WATCH-CHANGED. Handling time: 0. Response time: 0.
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.513Z - Handled json message FILE-WATCH-CHANGED. Handling time: 0. Response time: 1.
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.513Z - Time taken for 'changed-projects' 0.03960000001825392ms
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.513Z - [Client] Waiting for server (max: 6000 attempts, 10ms interval)
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.513Z - [FileWatcher] Starting reconnection for 1 callbacks
+[NX v22.7.1 Daemon Client] - 2026-05-03T05:06:08.514Z - [Client] Waiting for server (max: 6000 attempts, 10ms interval)
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - [WATCHER]: Processing file changes in outputs
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - [WATCHER]: Stopping the watcher for D:\projects\jpeditor (sources)
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 5
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 4
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 3
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 2
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 1
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - Closed a connection. Number of open connections: 0
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.514Z - [WATCHER]: Stopping the watcher for D:\projects\jpeditor (outputs)
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.515Z - [LATEST-NX]: Cleaning up latest Nx installation from C:\Users\User\AppData\Local\Temp\tmp-15252-JkG2FAVyayCw
+[NX v22.7.1 Daemon Server] - 2026-05-03T05:06:08.515Z - Server stopped because: "Stopping the daemon the set of ignored files changed (native)"
