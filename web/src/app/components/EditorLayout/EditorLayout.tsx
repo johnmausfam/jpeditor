@@ -82,10 +82,7 @@ console.log(greeting);
 \`\`\`
 `;
 
-function debounce<T extends (...args: unknown[]) => void>(
-  fn: T,
-  delay: number,
-) {
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
   let timer: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<T>) => {
     if (timer) clearTimeout(timer);
@@ -145,13 +142,20 @@ export function EditorLayout() {
     localStorage.setItem('jpeditor.useTemplate', checked ? 'true' : 'false');
   };
 
+  // Ref to TipTap editor — populated after useEditor() below; used by
+  // handlers that are defined before the editor const to avoid TDZ errors.
+  const editorRef = useRef<ReturnType<typeof useEditor>>(null);
+
   const handleNewDocument = useCallback(() => {
     const content = useTemplate ? EFFECTIVE_TEMPLATE : '';
     lastSourceRef.current = 'source';
     setMarkdown(content);
     useDriveStore.getState().setCurrentFile(null, null);
+    // CR-8: new document always enters split mode with WYSIWYG focused
+    setViewMode('split');
+    setTimeout(() => editorRef.current?.commands.focus('start'), 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useTemplate]);
+  }, [useTemplate, setViewMode]);
 
   // Ref for the WYSIWYG pane DOM node — used by useImageInsert for paste/drop
   const wysiwygPaneRef = useRef<HTMLDivElement>(null);
@@ -175,11 +179,17 @@ export function EditorLayout() {
     ],
     content: DEFAULT_CONTENT,
     onUpdate: ({ editor: ed }) => {
-      const md = ed.storage.markdown.getMarkdown() as string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const md = (ed.storage as any).markdown.getMarkdown() as string;
       lastSourceRef.current = 'wysiwyg';
       debouncedSetFromWysiwyg(md);
     },
   });
+
+  // Keep editorRef in sync so handlers defined before useEditor() can access it
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
 
   // Debounced handlers to avoid rapid state churn
   const debouncedSetFromWysiwyg = useMemo(
@@ -201,11 +211,13 @@ export function EditorLayout() {
     if (!editor || editor.isDestroyed) return;
     if (lastSourceRef.current !== 'source') return;
 
-    const currentMd = editor.storage.markdown.getMarkdown() as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const currentMd = (editor.storage as any).markdown.getMarkdown() as string;
     if (currentMd === markdown) return;
 
     // setContent with emitUpdate=false avoids triggering onUpdate → no loop
-    editor.commands.setContent(markdown, false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (editor.commands as any).setContent(markdown, false);
   }, [markdown, editor]);
 
   // ── Ruby dialog helpers ──────────────────────────────────────────────────
@@ -418,13 +430,16 @@ export function EditorLayout() {
         setCurrentFile(fileId, fileName);
         pushRecentFile(fileId, fileName);
         setDrivePanelOpen(false);
+        // CR-8: opening an existing file always enters preview mode
+        setPrePreviewMode('split');
+        setViewMode('preview');
       } catch (e) {
         removeRecentFile(fileId);
         setError(`開啟「${fileName}」失敗：${(e as Error).message}`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [setViewMode],
   );
 
   /** Save (overwrite) the currently open Drive file. */
@@ -791,10 +806,18 @@ export function EditorLayout() {
       <DraftDialog
         open={draftDialogOpen}
         onClose={() => setDraftDialogOpen(false)}
-        onApply={(content) => {
+        onApply={(content, fileId) => {
           lastSourceRef.current = 'source';
           setMarkdown(content);
           setDraftDialogOpen(false);
+          // CR-8: __new__ drafts → split mode; existing-file drafts → preview mode
+          if (fileId === '__new__') {
+            setViewMode('split');
+            setTimeout(() => editor?.commands.focus('start'), 0);
+          } else {
+            setPrePreviewMode('split');
+            setViewMode('preview');
+          }
         }}
       />
     </div>

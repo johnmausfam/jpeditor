@@ -11,7 +11,7 @@ interface DraftDialogProps {
   open: boolean;
   onClose: () => void;
   /** Called when the user clicks "套用至編輯器" */
-  onApply: (content: string) => void;
+  onApply: (content: string, fileId: string) => void;
 }
 
 function formatDate(ts: number): string {
@@ -137,7 +137,7 @@ export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
                   <div className={styles.previewActions}>
                     <button
                       className={styles.applyBtn}
-                      onClick={() => onApply(selected.content)}
+                      onClick={() => onApply(selected.content, selected.fileId)}
                     >
                       套用至編輯器
                     </button>
