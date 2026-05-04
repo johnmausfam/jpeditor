@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
-export default defineConfig(() => ({
-  base: '/jpeditor/',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/jpeditor/' : '/',
   root: import.meta.dirname,
   cacheDir: '../node_modules/.vite/web',
   server: {
