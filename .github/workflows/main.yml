@@ -1,28 +1,59 @@
-name: NodeJS nx build
+name: NodeJS nx build and deploy
 
 on:
   push:
     branches: ['master']
+  # 建議：通常只有 push 到 master 才執行部署，PR 僅執行 build 測試
   pull_request:
     branches: ['master']
+
+# 設定權限，這對於部署到 GitHub Pages 是必須的
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 確保同時只有一個部署任務在執行
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22.x
 
       - name: Build
         run: |
           npm install
           npm run build
+
+      - name: Upload Pages Artifact
+        # 只有在 push 到 master 時才上傳成品，PR 不上傳
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 指定你建置後的資料夾路徑
+          path: ./dist/web/
+
+  deploy:
+    # 只有 build 成功後才執行 deploy
+    needs: build
+    # 只在 push 到 master 時執行
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
