@@ -26,19 +26,21 @@ export function SourceEditor({ value, onChange }: SourceEditorProps) {
   return (
     <div className={styles.container}>
       <div className={styles.label}>Markdown 原始碼</div>
-      <CodeMirror
-        value={value}
-        height="100%"
-        extensions={cmExtensions}
-        onChange={onChange}
-        basicSetup={{
-          lineNumbers: true,
-          highlightActiveLine: true,
-          highlightSelectionMatches: true,
-          autocompletion: false,
-          foldGutter: false,
-        }}
-      />
+      <div className={styles.editorWrapper}>
+        <CodeMirror
+          value={value}
+          height="100%"
+          extensions={cmExtensions}
+          onChange={onChange}
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLine: true,
+            highlightSelectionMatches: true,
+            autocompletion: false,
+            foldGutter: false,
+          }}
+        />
+      </div>
     </div>
   );
 }

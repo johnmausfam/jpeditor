@@ -18,8 +18,15 @@
   flex-shrink: 0;
 }
 
-.container :global(.cm-editor) {
-  height: calc(100% - 32px);
+.editorWrapper {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorWrapper :global(.cm-editor) {
+  height: 100%;
   flex: 1;
 }
 
