@@ -15,6 +15,17 @@ function authHeaders(token: string): HeadersInit {
 
 async function assertOk(res: Response): Promise<void> {
   if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error('認證已過期，請重新登入。');
+    }
+    if (res.status === 403) {
+      throw new Error(
+        '您沒有存取此文件（或資料夾）的權限。請確認該項目已與您的 Google 帳號共用。',
+      );
+    }
+    if (res.status === 404) {
+      throw new Error('找不到指定的文件，它可能已被刪除或移至其他位置。');
+    }
     const body = await res.text().catch(() => '');
     throw new Error(`Drive API ${res.status}: ${body.slice(0, 300)}`);
   }

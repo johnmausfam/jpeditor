@@ -129,6 +129,11 @@ export function EditorLayout() {
   const [draftDialogOpen, setDraftDialogOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  // Stores the fileId/fileName from a share queryString until the user logs in
+  const shareLinkRef = useRef<{ fileId: string; fileName: string } | null>(
+    null,
+  );
   const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
     useDriveStore();
 
@@ -383,37 +388,6 @@ export function EditorLayout() {
     }
   }, []);
 
-  /** Trigger the GIS OAuth popup; on success, fetch user profile and auto-load files. */
-  const handleLogin = useCallback(() => {
-    requestGoogleLogin(async (token) => {
-      if (!token) {
-        useDriveStore.getState().setError('登入失敗，請稍後再試。');
-        return;
-      }
-      try {
-        const info = await fetchUserInfo(token);
-        useDriveStore
-          .getState()
-          .setAuth(token, info.email, info.name, info.picture);
-        setDrivePanelOpen(true);
-        const { activeFolderId } = useDriveStore.getState();
-        if (activeFolderId) await handleLoadDriveFiles();
-      } catch (e) {
-        useDriveStore
-          .getState()
-          .setError(`取得使用者資訊失敗：${(e as Error).message}`);
-      }
-    });
-  }, [handleLoadDriveFiles]);
-
-  /** Revoke the token and clear all Drive state. */
-  const handleLogout = useCallback(() => {
-    const { accessToken, logout } = useDriveStore.getState();
-    if (accessToken) revokeGoogleToken(accessToken);
-    logout();
-    setDrivePanelOpen(false);
-  }, []);
-
   /**
    * Download a Drive file and load it into the editor via the
    * source→TipTap sync path (same as typing in the CodeMirror pane).
@@ -441,6 +415,56 @@ export function EditorLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [setViewMode],
   );
+
+  /**
+   * Same as handleOpenDriveFile but also clears the share queryString from
+   * the URL after the file has loaded (CR-11).
+   */
+  const handleOpenSharedFile = useCallback(
+    async (fileId: string, fileName: string) => {
+      await handleOpenDriveFile(fileId, fileName);
+      history.replaceState(null, '', window.location.pathname);
+    },
+    [handleOpenDriveFile],
+  );
+
+  /** Trigger the GIS OAuth popup; on success, fetch user profile and auto-load files. */
+  const handleLogin = useCallback(() => {
+    requestGoogleLogin(async (token) => {
+      if (!token) {
+        useDriveStore.getState().setError('登入失敗，請稍後再試。');
+        return;
+      }
+      try {
+        const info = await fetchUserInfo(token);
+        useDriveStore
+          .getState()
+          .setAuth(token, info.email, info.name, info.picture);
+        // CR-11: if opened via a share link, load that file instead of the panel
+        if (shareLinkRef.current) {
+          const { fileId, fileName } = shareLinkRef.current;
+          shareLinkRef.current = null;
+          await handleOpenSharedFile(fileId, fileName);
+        } else {
+          setDrivePanelOpen(true);
+          const { activeFolderId } = useDriveStore.getState();
+          if (activeFolderId) await handleLoadDriveFiles();
+        }
+      } catch (e) {
+        useDriveStore
+          .getState()
+          .setError(`取得使用者資訊失敗：${(e as Error).message}`);
+      }
+    });
+  }, [handleLoadDriveFiles, handleOpenSharedFile]);
+
+  /** Revoke the token and clear all Drive state. */
+  const handleLogout = useCallback(() => {
+    const { accessToken, logout } = useDriveStore.getState();
+    if (accessToken) revokeGoogleToken(accessToken);
+    logout();
+    setDrivePanelOpen(false);
+  }, []);
 
   /** Save (overwrite) the currently open Drive file. */
   const handleSave = useCallback(async () => {
@@ -604,6 +628,38 @@ export function EditorLayout() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [handleSave]);
 
+  // ── CR-11: open shared file from URL queryString on mount ───────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fileId = params.get('fileId');
+    if (!fileId) return;
+    const fileName = params.get('fileName') ?? '';
+    shareLinkRef.current = { fileId, fileName };
+    if (useDriveStore.getState().isLoggedIn) {
+      shareLinkRef.current = null;
+      handleOpenSharedFile(fileId, fileName);
+    } else {
+      handleLogin();
+    }
+    // Run once on mount only; handleLogin/handleOpenSharedFile are stable refs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── CR-11: copy share URL to clipboard ─────────────────────────────────
+  const handleShare = useCallback(async () => {
+    if (!currentFileId) return;
+    const params = new URLSearchParams({ fileId: currentFileId });
+    if (currentFileName) params.set('fileName', currentFileName);
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      window.prompt('複製此連結以分享：', url);
+    }
+  }, [currentFileId, currentFileName]);
+
   const isPreview = viewMode === 'preview';
   const showWysiwyg =
     !isPreview && (viewMode === 'split' || viewMode === 'wysiwyg');
@@ -626,6 +682,17 @@ export function EditorLayout() {
           {currentFileName ?? '日文講義エディター'}
         </span>
         <div className={styles.headerActions}>
+          {isLoggedIn && (
+            <button
+              className={styles.headerBtn}
+              onClick={handleShare}
+              disabled={!currentFileId}
+              title={currentFileId ? '複製分享連結' : '請先儲存文件'}
+              aria-label="分享"
+            >
+              {shareCopied ? '✓ 已複製！' : '🔗 分享'}
+            </button>
+          )}
           {isLoggedIn && (
             <button
               className={`${styles.headerBtn} ${styles.headerBtnPrimary}`}
