@@ -52,7 +52,7 @@ export async function listMarkdownFiles(
 ): Promise<DriveFile[]> {
   const params = new URLSearchParams({
     q: `'${folderId}' in parents and trashed = false`,
-    fields: 'files(id,name,modifiedTime,size,mimeType)',
+    fields: 'files(id,name,modifiedTime,size,mimeType,owners)',
     orderBy: 'modifiedTime desc',
     pageSize: '100',
   });
@@ -69,10 +69,19 @@ export async function listMarkdownFiles(
       modifiedTime: string;
       size?: string;
       mimeType: string;
+      owners?: Array<{ displayName: string }>;
     }>;
   };
 
-  return (data.files ?? []).filter((f) => f.name.endsWith('.md'));
+  return (data.files ?? [])
+    .filter((f) => f.name.endsWith('.md'))
+    .map((f) => ({
+      id: f.id,
+      name: f.name,
+      modifiedTime: f.modifiedTime,
+      size: f.size,
+      ownerName: f.owners?.[0]?.displayName,
+    }));
 }
 
 // ── File content ──────────────────────────────────────────────────────────────

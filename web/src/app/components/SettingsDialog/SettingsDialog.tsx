@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDriveStore } from '../../store/driveStore';
+import type { WorkFolder } from '../../store/driveStore';
 import {
   getDraftIntervalMs,
   setDraftIntervalMs,
@@ -13,35 +14,64 @@ interface SettingsDialogProps {
 }
 
 export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
-  const { folderId, setFolderId } = useDriveStore();
-  const [folderInput, setFolderInput] = useState('');
+  const { workFolders, setWorkFolders, activeFolderId, setActiveFolderId } =
+    useDriveStore();
+  const [folderList, setFolderList] = useState<WorkFolder[]>([]);
   const [draftInterval, setDraftInterval] = useState(getDraftIntervalMs());
-  const inputRef = useRef<HTMLInputElement>(null);
+  const firstLabelRef = useRef<HTMLInputElement>(null);
 
-  // Sync input with store when dialog opens
+  // Sync local state when dialog opens
   useEffect(() => {
     if (open) {
-      setFolderInput(folderId);
+      setFolderList(
+        workFolders.length > 0
+          ? workFolders.map((f) => ({ ...f }))
+          : [{ label: '', folderId: '' }],
+      );
       setDraftInterval(getDraftIntervalMs());
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => firstLabelRef.current?.focus(), 50);
     }
-  }, [open, folderId]);
+  }, [open, workFolders]);
 
   if (!open) return null;
 
+  const handleAddFolder = () => {
+    setFolderList((prev) => [...prev, { label: '', folderId: '' }]);
+  };
+
+  const handleRemoveFolder = (index: number) => {
+    setFolderList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFolderChange = (
+    index: number,
+    field: keyof WorkFolder,
+    value: string,
+  ) => {
+    setFolderList((prev) =>
+      prev.map((f, i) => (i === index ? { ...f, [field]: value } : f)),
+    );
+  };
+
   const handleSave = () => {
-    setFolderId(folderInput.trim());
+    const valid = folderList.filter(
+      (f) => f.label.trim() !== '' && f.folderId.trim() !== '',
+    );
+    const saved = valid.length > 0 ? valid : [{ label: '', folderId: '' }];
+    setWorkFolders(saved);
+
+    // If current activeFolderId is no longer in the list, switch to first
+    const stillValid = saved.some((f) => f.folderId === activeFolderId);
+    if (!stillValid) {
+      setActiveFolderId(saved[0]?.folderId ?? '');
+    }
+
     setDraftIntervalMs(draftInterval);
-    // Notify EditorLayout to restart the backup interval
     window.dispatchEvent(new CustomEvent('jpeditor:draft-interval-changed'));
     onClose();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSave();
-    }
     if (e.key === 'Escape') {
       e.preventDefault();
       onClose();
@@ -53,6 +83,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
       <div
         className={styles.dialog}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
         role="dialog"
         aria-modal="true"
         aria-label="設定"
@@ -64,29 +95,54 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           <h3 className={styles.sectionTitle}>Google Drive</h3>
 
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="settings-folder-id">
-              預設工作目錄 ID
-            </label>
-            <input
-              ref={inputRef}
-              id="settings-folder-id"
-              className={styles.input}
-              type="text"
-              value={folderInput}
-              onChange={(e) => setFolderInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="貼上 Google Drive 資料夾 ID"
-              autoComplete="off"
-              spellCheck={false}
-            />
+            <span className={styles.label}>工作目錄</span>
+            <div className={styles.folderList}>
+              {folderList.map((folder, index) => (
+                <div key={index} className={styles.folderRow}>
+                  <input
+                    ref={index === 0 ? firstLabelRef : undefined}
+                    className={styles.input}
+                    type="text"
+                    value={folder.label}
+                    onChange={(e) =>
+                      handleFolderChange(index, 'label', e.target.value)
+                    }
+                    placeholder="資料夾名稱"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <input
+                    className={`${styles.input} ${styles.folderIdInput}`}
+                    type="text"
+                    value={folder.folderId}
+                    onChange={(e) =>
+                      handleFolderChange(index, 'folderId', e.target.value)
+                    }
+                    placeholder="Google Drive 資料夾 ID"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <button
+                    className={styles.removeBtn}
+                    onClick={() => handleRemoveFolder(index)}
+                    disabled={folderList.length <= 1}
+                    aria-label="刪除此工作目錄"
+                    title="刪除"
+                  >
+                    🗑
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button className={styles.addBtn} onClick={handleAddFolder}>
+              ＋ 新增工作目錄
+            </button>
             <p className={styles.hint}>
               在 Google Drive 開啟目標資料夾，從網址列複製 ID：
               <br />
               <code className={styles.code}>
                 drive.google.com/drive/folders/<strong>資料夾ID</strong>
               </code>
-              <br />
-              登入 Google 後，「Drive 文件」面板將自動套用此目錄。
             </p>
           </div>
         </section>

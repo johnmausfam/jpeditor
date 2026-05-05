@@ -89,6 +89,23 @@
   line-height: 1.6;
 }
 
+.folderSelect {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #1e293b;
+  cursor: pointer;
+  outline: none;
+}
+
+.folderSelect:focus {
+  border-color: #94a3b8;
+  background: #fff;
+}
+
 /* ── List header ──────────────────────────────────────── */
 .listHeader {
   display: flex;
@@ -204,4 +221,76 @@
   color: #2563eb;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* ── Control bar (search / owner filter / sort) ───────── */
+.controlBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 5px 28px 5px 8px;
+  font-size: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #1e293b;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: #94a3b8;
+  background: #fff;
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+}
+
+.searchClear {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.searchClear:hover {
+  color: #475569;
+}
+
+.filterSelect {
+  font-size: 12px;
+  padding: 5px 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.filterSelect:focus {
+  border-color: #94a3b8;
 }

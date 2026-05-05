@@ -366,15 +366,15 @@ export function EditorLayout() {
   /** Load (or refresh) the file list from the configured Drive folder. */
   const handleLoadDriveFiles = useCallback(async () => {
     const store = useDriveStore.getState();
-    const { accessToken, folderId } = store;
-    if (!accessToken || !folderId.trim()) {
+    const { accessToken, activeFolderId } = store;
+    if (!accessToken || !activeFolderId.trim()) {
       store.setError('請先設定 Google Drive 資料夾 ID。');
       return;
     }
     store.setLoadingFiles(true);
     store.setError(null);
     try {
-      const files = await listMarkdownFiles(accessToken, folderId);
+      const files = await listMarkdownFiles(accessToken, activeFolderId);
       store.setFiles(files);
     } catch (e) {
       store.setError(`載入文件列表失敗：${(e as Error).message}`);
@@ -396,8 +396,8 @@ export function EditorLayout() {
           .getState()
           .setAuth(token, info.email, info.name, info.picture);
         setDrivePanelOpen(true);
-        const { folderId } = useDriveStore.getState();
-        if (folderId) await handleLoadDriveFiles();
+        const { activeFolderId } = useDriveStore.getState();
+        if (activeFolderId) await handleLoadDriveFiles();
       } catch (e) {
         useDriveStore
           .getState()
@@ -447,7 +447,7 @@ export function EditorLayout() {
     const {
       accessToken,
       currentFileId: fid,
-      folderId,
+      activeFolderId,
       setError,
     } = useDriveStore.getState();
     if (!accessToken) return;
@@ -458,8 +458,8 @@ export function EditorLayout() {
     setIsSaving(true);
     try {
       await updateDriveFile(accessToken, fid, markdown);
-      if (folderId) {
-        const files = await listMarkdownFiles(accessToken, folderId);
+      if (activeFolderId) {
+        const files = await listMarkdownFiles(accessToken, activeFolderId);
         useDriveStore.getState().setFiles(files);
       }
     } catch (e) {
@@ -472,10 +472,10 @@ export function EditorLayout() {
   /** Save As: create a new Drive file with a chosen name. */
   const handleSaveAs = useCallback(
     async (fileName: string) => {
-      const { accessToken, folderId, setError, setCurrentFile } =
+      const { accessToken, activeFolderId, setError, setCurrentFile } =
         useDriveStore.getState();
       if (!accessToken) return;
-      if (!folderId) {
+      if (!activeFolderId) {
         setError('請先在「Drive 文件」面板設定工作目錄 ID。');
         setSaveAsDialogOpen(false);
         return;
@@ -485,7 +485,7 @@ export function EditorLayout() {
       try {
         const newId = await createDriveFile(
           accessToken,
-          folderId,
+          activeFolderId,
           fileName,
           markdown,
         );
@@ -493,7 +493,7 @@ export function EditorLayout() {
           newId,
           fileName.endsWith('.md') ? fileName : `${fileName}.md`,
         );
-        const files = await listMarkdownFiles(accessToken, folderId);
+        const files = await listMarkdownFiles(accessToken, activeFolderId);
         useDriveStore.getState().setFiles(files);
       } catch (e) {
         setError(`另存失敗：${(e as Error).message}`);

@@ -5,8 +5,8 @@
  * they survive a page reload within the same browser tab but are cleared when
  * the tab is closed (sessionStorage is tab-scoped).
  *
- * The working folder ID is persisted in localStorage (non-sensitive, survives
- * restarts, per-origin).
+ * Work folders are persisted in localStorage as a JSON array.
+ * Legacy single-folder key (jpeditor_drive_folder) is migrated on first load.
  */
 import { create } from 'zustand';
 
@@ -15,15 +15,28 @@ export interface DriveFile {
   name: string;
   modifiedTime: string;
   size?: string;
+  ownerName?: string;
 }
 
-// sessionStorage / localStorage keys
+/** A named Google Drive working directory entry. */
+export interface WorkFolder {
+  /** User-defined display label. */
+  label: string;
+  /** Google Drive folder ID. */
+  folderId: string;
+}
+
+// sessionStorage keys
 const SS_TOKEN = 'jpeditor_gtoken';
 const SS_EXPIRY = 'jpeditor_gtoken_expiry';
 const SS_EMAIL = 'jpeditor_user_email';
 const SS_NAME = 'jpeditor_user_name';
 const SS_PICTURE = 'jpeditor_user_picture';
-const LS_FOLDER = 'jpeditor_drive_folder';
+
+// localStorage keys
+const LS_FOLDER_LEGACY = 'jpeditor_drive_folder'; // deprecated, kept for migration
+const LS_FOLDERS = 'jpeditor_drive_folders';
+const LS_ACTIVE = 'jpeditor_drive_active';
 
 interface DriveState {
   isLoggedIn: boolean;
@@ -32,8 +45,10 @@ interface DriveState {
   userName: string | null;
   userPicture: string | null;
   files: DriveFile[];
-  /** Google Drive folder ID of the current working directory. */
-  folderId: string;
+  /** List of configured working directories. */
+  workFolders: WorkFolder[];
+  /** Folder ID of the currently active working directory. */
+  activeFolderId: string;
   /** ID of the currently open Drive file (null = new / unsaved). */
   currentFileId: string | null;
   /** File name of the currently open Drive file. */
@@ -51,8 +66,10 @@ interface DriveState {
   /** Clear all auth state and remove persisted values. */
   logout: () => void;
   setFiles: (files: DriveFile[]) => void;
-  /** Persist folder ID to localStorage. */
-  setFolderId: (id: string) => void;
+  /** Update work folder list and persist to localStorage. */
+  setWorkFolders: (folders: WorkFolder[]) => void;
+  /** Switch active working directory and persist to localStorage. */
+  setActiveFolderId: (id: string) => void;
   setCurrentFile: (id: string | null, name: string | null) => void;
   setLoadingFiles: (v: boolean) => void;
   setError: (error: string | null) => void;
@@ -86,10 +103,45 @@ function restoreAuth(): Pick<
   };
 }
 
+/**
+ * Initialise work folders from localStorage, migrating legacy single-folder
+ * key if necessary.
+ */
+function initWorkFolders(): {
+  workFolders: WorkFolder[];
+  activeFolderId: string;
+} {
+  const foldersRaw = localStorage.getItem(LS_FOLDERS);
+  let workFolders: WorkFolder[] = [];
+
+  if (foldersRaw) {
+    try {
+      workFolders = JSON.parse(foldersRaw) as WorkFolder[];
+    } catch {
+      workFolders = [];
+    }
+  } else {
+    const legacy = localStorage.getItem(LS_FOLDER_LEGACY);
+    if (legacy) {
+      workFolders = [{ label: '預設目錄', folderId: legacy }];
+      localStorage.setItem(LS_FOLDERS, JSON.stringify(workFolders));
+    }
+  }
+
+  const savedActive = localStorage.getItem(LS_ACTIVE);
+  // Use saved active ID if it still exists in the list; otherwise fall back to first entry
+  const validActive =
+    savedActive && workFolders.some((f) => f.folderId === savedActive)
+      ? savedActive
+      : (workFolders[0]?.folderId ?? '');
+
+  return { workFolders, activeFolderId: validActive };
+}
+
 export const useDriveStore = create<DriveState>((set) => ({
   ...restoreAuth(),
   files: [],
-  folderId: localStorage.getItem(LS_FOLDER) ?? '',
+  ...initWorkFolders(),
   currentFileId: null,
   currentFileName: null,
   isLoadingFiles: false,
@@ -128,9 +180,14 @@ export const useDriveStore = create<DriveState>((set) => ({
 
   setFiles: (files) => set({ files }),
 
-  setFolderId: (id) => {
-    localStorage.setItem(LS_FOLDER, id);
-    set({ folderId: id });
+  setWorkFolders: (folders) => {
+    localStorage.setItem(LS_FOLDERS, JSON.stringify(folders));
+    set({ workFolders: folders });
+  },
+
+  setActiveFolderId: (id) => {
+    localStorage.setItem(LS_ACTIVE, id);
+    set({ activeFolderId: id });
   },
 
   setCurrentFile: (id, name) =>

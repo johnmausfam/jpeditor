@@ -1,7 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDriveStore } from '../../store/driveStore';
 import type { DriveFile } from '../../store/driveStore';
 import styles from './DrivePanel.module.css';
+
+type SortKey = 'modifiedTime' | 'name';
+
+const LS_SORT = 'jpeditor_drive_sort';
+
+function readSortKey(): SortKey {
+  const v = localStorage.getItem(LS_SORT);
+  return v === 'name' ? 'name' : 'modifiedTime';
+}
 
 interface DrivePanelProps {
   open: boolean;
@@ -24,9 +33,39 @@ export function DrivePanel({
   onOpenFile,
   onRefresh,
 }: DrivePanelProps) {
-  const { files, folderId, isLoadingFiles, error } = useDriveStore();
+  const {
+    files,
+    workFolders,
+    activeFolderId,
+    setActiveFolderId,
+    isLoadingFiles,
+    error,
+  } = useDriveStore();
 
   const [openingFileId, setOpeningFileId] = useState<string | null>(null);
+  const [keyword, setKeyword] = useState('');
+  const [selectedOwner, setSelectedOwner] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>(readSortKey);
+
+  // Collect unique owner names from the full file list
+  const ownerOptions = useMemo(() => {
+    const names = files.map((f) => f.ownerName ?? '').filter(Boolean);
+    return Array.from(new Set(names)).sort();
+  }, [files]);
+
+  // Filter + sort
+  const displayedFiles = useMemo(() => {
+    const kw = keyword.toLowerCase();
+    return files
+      .filter((f) => (kw ? f.name.toLowerCase().includes(kw) : true))
+      .filter((f) => (selectedOwner ? f.ownerName === selectedOwner : true))
+      .sort((a, b) => {
+        if (sortKey === 'name') {
+          return a.name.localeCompare(b.name, 'ja');
+        }
+        return b.modifiedTime.localeCompare(a.modifiedTime);
+      });
+  }, [files, keyword, selectedOwner, sortKey]);
 
   if (!open) return null;
 
@@ -37,6 +76,22 @@ export function DrivePanel({
     } finally {
       setOpeningFileId(null);
     }
+  };
+
+  const handleRefresh = () => {
+    setKeyword('');
+    onRefresh();
+  };
+
+  const handleFolderChange = (folderId: string) => {
+    setActiveFolderId(folderId);
+    setKeyword('');
+    onRefresh();
+  };
+
+  const handleSortChange = (key: SortKey) => {
+    setSortKey(key);
+    localStorage.setItem(LS_SORT, key);
   };
 
   return (
@@ -66,15 +121,24 @@ export function DrivePanel({
           </button>
         </div>
 
-        {/* ── Folder ID hint ── */}
+        {/* ── Folder selector ── */}
         <div className={styles.folderSection}>
-          {folderId ? (
-            <p className={styles.folderActive}>
-              📂 <strong>{folderId}</strong>
-            </p>
+          {workFolders.length > 0 ? (
+            <select
+              className={styles.folderSelect}
+              value={activeFolderId}
+              onChange={(e) => handleFolderChange(e.target.value)}
+              aria-label="切換工作目錄"
+            >
+              {workFolders.map((f) => (
+                <option key={f.folderId} value={f.folderId}>
+                  📂 {f.label}
+                </option>
+              ))}
+            </select>
           ) : (
             <p className={styles.folderHint}>
-              尚未設定工作目錄。請點選右上角 ⚙️ 設定工作目錄 ID 後重新整理。
+              尚未設定工作目錄。請點選右上角 ⚙️ 新增工作目錄後重新整理。
             </p>
           )}
         </div>
@@ -82,19 +146,68 @@ export function DrivePanel({
         {/* ── List header ── */}
         <div className={styles.listHeader}>
           <span className={styles.fileCount}>
-            {!isLoadingFiles && !error && folderId
+            {!isLoadingFiles && !error && activeFolderId
               ? `${files.length} 個 .md 檔案`
               : ''}
           </span>
           <button
             className={styles.refreshBtn}
-            onClick={onRefresh}
-            disabled={isLoadingFiles || !folderId}
+            onClick={handleRefresh}
+            disabled={isLoadingFiles || !activeFolderId}
             aria-label="重新整理文件列表"
           >
             {isLoadingFiles ? '載入中…' : '↺ 重新整理'}
           </button>
         </div>
+
+        {/* ── Control bar: search / owner filter / sort ── */}
+        {!isLoadingFiles && activeFolderId && !error && files.length > 0 && (
+          <div className={styles.controlBar}>
+            <div className={styles.searchWrapper}>
+              <input
+                className={styles.searchInput}
+                type="text"
+                placeholder="搜尋檔名…"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                aria-label="搜尋檔名"
+              />
+              {keyword && (
+                <button
+                  className={styles.searchClear}
+                  onClick={() => setKeyword('')}
+                  aria-label="清除搜尋"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {ownerOptions.length > 0 && (
+              <select
+                className={styles.filterSelect}
+                value={selectedOwner}
+                onChange={(e) => setSelectedOwner(e.target.value)}
+                aria-label="依擁有者過濾"
+              >
+                <option value="">全部</option>
+                {ownerOptions.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            )}
+            <select
+              className={styles.filterSelect}
+              value={sortKey}
+              onChange={(e) => handleSortChange(e.target.value as SortKey)}
+              aria-label="排序方式"
+            >
+              <option value="modifiedTime">依編輯時間</option>
+              <option value="name">依檔名</option>
+            </select>
+          </div>
+        )}
 
         {/* ── Error banner ── */}
         {error && (
@@ -111,18 +224,29 @@ export function DrivePanel({
             </p>
           )}
 
-          {!isLoadingFiles && !folderId && (
+          {!isLoadingFiles && !activeFolderId && (
             <p className={styles.statusMsg}>
               請先設定 Google Drive 資料夾 ID。
             </p>
           )}
 
-          {!isLoadingFiles && folderId && !error && files.length === 0 && (
-            <p className={styles.statusMsg}>此資料夾中沒有 .md 檔案。</p>
-          )}
+          {!isLoadingFiles &&
+            activeFolderId &&
+            !error &&
+            files.length === 0 && (
+              <p className={styles.statusMsg}>此資料夾中沒有 .md 檔案。</p>
+            )}
 
           {!isLoadingFiles &&
-            files.map((file) => (
+            activeFolderId &&
+            !error &&
+            files.length > 0 &&
+            displayedFiles.length === 0 && (
+              <p className={styles.statusMsg}>找不到符合「{keyword}」的檔案</p>
+            )}
+
+          {!isLoadingFiles &&
+            displayedFiles.map((file) => (
               <button
                 key={file.id}
                 className={styles.fileItem}
@@ -138,6 +262,7 @@ export function DrivePanel({
                     {file.size
                       ? ` · ${Math.ceil(Number(file.size) / 1024)} KB`
                       : ''}
+                    {file.ownerName ? ` · ${file.ownerName}` : ''}
                   </span>
                 </span>
                 {openingFileId === file.id && (
