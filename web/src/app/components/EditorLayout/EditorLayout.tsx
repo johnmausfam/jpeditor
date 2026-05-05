@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -134,6 +141,10 @@ export function EditorLayout() {
   const shareLinkRef = useRef<{ fileId: string; fileName: string } | null>(
     null,
   );
+  // CR-11 fix: TipTap's useEditor may not re-render when setContent() is called
+  // with emitUpdate=false (same editor reference → React bails out). This dispatch
+  // forces EditorLayout to re-render so PreviewPane reads the updated getHTML().
+  const [, forcePreviewRefresh] = useReducer((x: number) => x + 1, 0);
   const { isLoggedIn, userName, userEmail, currentFileId, currentFileName } =
     useDriveStore();
 
@@ -223,7 +234,10 @@ export function EditorLayout() {
     // setContent with emitUpdate=false avoids triggering onUpdate → no loop
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (editor.commands as any).setContent(markdown, false);
-  }, [markdown, editor]);
+    // TipTap may not trigger a React re-render (same editor reference), so force
+    // one here so PreviewPane re-reads the now-updated editor.getHTML().
+    forcePreviewRefresh();
+  }, [markdown, editor, forcePreviewRefresh]);
 
   // ── Ruby dialog helpers ──────────────────────────────────────────────────
   const openRubyDialog = useCallback(() => {
