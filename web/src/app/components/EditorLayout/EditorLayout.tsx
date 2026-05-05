@@ -136,6 +136,7 @@ export function EditorLayout() {
   const [draftDialogOpen, setDraftDialogOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOpeningFile, setIsOpeningFile] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   // Stores the fileId/fileName from a share queryString until the user logs in
   const shareLinkRef = useRef<{ fileId: string; fileName: string } | null>(
@@ -411,6 +412,7 @@ export function EditorLayout() {
       const { accessToken, setError, setCurrentFile } =
         useDriveStore.getState();
       if (!accessToken) return;
+      setIsOpeningFile(true);
       try {
         const content = await downloadFileContent(accessToken, fileId);
         lastSourceRef.current = 'source';
@@ -424,6 +426,8 @@ export function EditorLayout() {
       } catch (e) {
         removeRecentFile(fileId);
         setError(`開啟「${fileName}」失敗：${(e as Error).message}`);
+      } finally {
+        setIsOpeningFile(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -731,6 +735,10 @@ export function EditorLayout() {
           </button>
         </div>
       </header>
+      {/* ── CR-13: Global progress bar (below header) ── */}
+      {(isSaving || isOpeningFile) && (
+        <div className={styles.progressBar} aria-hidden="true" />
+      )}
 
       {/* ── Toolbar ── */}
       {!isPreview && (

@@ -219,9 +219,15 @@ export function DrivePanel({
         {/* ── File list ── */}
         <div className={styles.fileList}>
           {isLoadingFiles && (
-            <p className={styles.statusMsg} aria-live="polite">
-              載入中…
-            </p>
+            <div
+              className={styles.skeleton}
+              aria-busy="true"
+              aria-label="載入中"
+            >
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className={styles.skeletonItem} />
+              ))}
+            </div>
           )}
 
           {!isLoadingFiles && !activeFolderId && (
