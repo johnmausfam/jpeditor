@@ -1,70 +1,138 @@
 /**
  * localDrafts.ts — utility for persisting local draft backups in localStorage.
  *
- * Storage key : jpeditor.localDrafts
- * Max entries : 20  (same fileId → overwrite; oldest evicted when full)
- * New files   : fileId = "__new__", fileName = null
+ * Storage key  : jpeditor.localDrafts
+ * Max files    : 20  (oldest-activity file evicted when over limit)
+ * Max versions : 40  per file (oldest version evicted when over limit)
+ * New files    : fileId = "__new__", fileName = null
  */
 
 const LS_KEY = 'jpeditor.localDrafts';
-const MAX_DRAFTS = 20;
+const MAX_FILES = 20;
+const MAX_VERSIONS = 40;
 
-export interface LocalDraft {
-  fileId: string; // Drive file ID, or "__new__" for unsaved documents
-  fileName: string | null; // Drive file name; null for unsaved documents
+/** Single draft version snapshot. */
+export interface DraftVersion {
   content: string; // Full Markdown text at backup time
   savedAt: number; // Unix timestamp (ms)
 }
 
-export function getDrafts(): LocalDraft[] {
+/** All draft versions for one file. */
+export interface FileDrafts {
+  fileId: string; // Drive file ID, or "__new__" for unsaved documents
+  fileName: string | null; // Drive file name; null for unsaved documents
+  versions: DraftVersion[]; // Descending by savedAt (newest first), max 40
+}
+
+// ── Legacy format used before CR-14 ─────────────────────────────────────────
+interface LegacyDraft {
+  fileId: string;
+  fileName: string | null;
+  content: string;
+  savedAt: number;
+}
+
+function isLegacyFormat(arr: unknown[]): arr is LegacyDraft[] {
+  return arr.length > 0 && 'content' in (arr[0] as object);
+}
+
+function migrateLegacy(legacy: LegacyDraft[]): FileDrafts[] {
+  const migrated: FileDrafts[] = legacy.map((d) => ({
+    fileId: d.fileId,
+    fileName: d.fileName,
+    versions: [{ content: d.content, savedAt: d.savedAt }],
+  }));
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(migrated));
+  } catch {
+    // ignore quota errors during migration
+  }
+  return migrated;
+}
+
+export function getFileDrafts(): FileDrafts[] {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as LocalDraft[];
+    if (isLegacyFormat(parsed)) return migrateLegacy(parsed);
+    return parsed as FileDrafts[];
   } catch {
     return [];
   }
 }
 
 /**
- * Save (or overwrite) a draft entry for the given fileId.
- * If no existing entry matches, a new one is appended.
- * When the list exceeds MAX_DRAFTS, the oldest entry (by savedAt) is removed.
+ * Save a new draft version for the given fileId.
+ * Prepends to the file's version list; trims to MAX_VERSIONS.
+ * If the file is new and total files exceed MAX_FILES, evicts the file
+ * whose oldest version has the earliest savedAt (least recently active).
  */
 export function saveDraft(
   fileId: string,
   fileName: string | null,
   content: string,
 ): void {
-  let drafts = getDrafts();
+  const allFiles = getFileDrafts();
   const now = Date.now();
+  const newVersion: DraftVersion = { content, savedAt: now };
 
-  // Overwrite existing entry for this fileId
-  const existingIdx = drafts.findIndex((d) => d.fileId === fileId);
+  const existingIdx = allFiles.findIndex((f) => f.fileId === fileId);
   if (existingIdx >= 0) {
-    drafts[existingIdx] = { fileId, fileName, content, savedAt: now };
+    const entry = allFiles[existingIdx];
+    entry.fileName = fileName;
+    entry.versions = [newVersion, ...entry.versions].slice(0, MAX_VERSIONS);
   } else {
-    drafts.push({ fileId, fileName, content, savedAt: now });
-    // Evict oldest if over limit
-    if (drafts.length > MAX_DRAFTS) {
-      drafts.sort((a, b) => a.savedAt - b.savedAt);
-      drafts = drafts.slice(drafts.length - MAX_DRAFTS);
+    const newEntry: FileDrafts = {
+      fileId,
+      fileName,
+      versions: [newVersion],
+    };
+    allFiles.push(newEntry);
+
+    // Evict file with the oldest single version when over the file limit
+    if (allFiles.length > MAX_FILES) {
+      let oldestIdx = 0;
+      let oldestTime = Infinity;
+      for (let i = 0; i < allFiles.length; i++) {
+        const file = allFiles[i];
+        const tail = file.versions[file.versions.length - 1];
+        if (tail && tail.savedAt < oldestTime) {
+          oldestTime = tail.savedAt;
+          oldestIdx = i;
+        }
+      }
+      allFiles.splice(oldestIdx, 1);
     }
   }
 
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(drafts));
+    localStorage.setItem(LS_KEY, JSON.stringify(allFiles));
   } catch {
     // localStorage quota exceeded — silently skip
   }
 }
 
-/** Remove a single draft by fileId. */
+/** Remove all versions for a file. */
 export function removeDraft(fileId: string): void {
-  const drafts = getDrafts().filter((d) => d.fileId !== fileId);
-  localStorage.setItem(LS_KEY, JSON.stringify(drafts));
+  const updated = getFileDrafts().filter((f) => f.fileId !== fileId);
+  localStorage.setItem(LS_KEY, JSON.stringify(updated));
+}
+
+/** Remove a single version from a file; removes the file entry if no versions remain. */
+export function removeVersion(fileId: string, savedAt: number): void {
+  const allFiles = getFileDrafts();
+  const idx = allFiles.findIndex((f) => f.fileId === fileId);
+  if (idx < 0) return;
+  allFiles[idx].versions = allFiles[idx].versions.filter(
+    (v) => v.savedAt !== savedAt,
+  );
+  const updated =
+    allFiles[idx].versions.length === 0
+      ? allFiles.filter((_, i) => i !== idx)
+      : allFiles;
+  localStorage.setItem(LS_KEY, JSON.stringify(updated));
 }
 
 /** Remove all drafts. */

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   clearDrafts,
-  getDrafts,
+  getFileDrafts,
   removeDraft,
-  type LocalDraft,
+  removeVersion,
+  type FileDrafts,
+  type DraftVersion,
 } from '../../lib/localDrafts';
 import styles from './DraftDialog.module.css';
 
@@ -24,29 +26,74 @@ function formatDate(ts: number): string {
   });
 }
 
+/** Sort FileDrafts by the newest version's savedAt, descending. */
+function sortedFileDrafts(list: FileDrafts[]): FileDrafts[] {
+  return [...list].sort((a, b) => {
+    const aTop = a.versions[0]?.savedAt ?? 0;
+    const bTop = b.versions[0]?.savedAt ?? 0;
+    return bTop - aTop;
+  });
+}
+
 export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
-  const [drafts, setDrafts] = useState<LocalDraft[]>([]);
-  const [selected, setSelected] = useState<LocalDraft | null>(null);
+  const [fileDrafts, setFileDrafts] = useState<FileDrafts[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [selectedSavedAt, setSelectedSavedAt] = useState<number | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
   // Reload drafts whenever the dialog opens
   useEffect(() => {
     if (open) {
-      const list = getDrafts().sort((a, b) => b.savedAt - a.savedAt);
-      setDrafts(list);
-      setSelected(list[0] ?? null);
+      const list = sortedFileDrafts(getFileDrafts());
+      setFileDrafts(list);
+      const firstFile = list[0] ?? null;
+      setSelectedFileId(firstFile?.fileId ?? null);
+      setSelectedSavedAt(firstFile?.versions[0]?.savedAt ?? null);
       setConfirmClear(false);
     }
   }, [open]);
 
   if (!open) return null;
 
-  const handleRemove = (fileId: string) => {
+  const selectedFile =
+    fileDrafts.find((f) => f.fileId === selectedFileId) ?? null;
+  const selectedVersion: DraftVersion | null =
+    selectedFile?.versions.find((v) => v.savedAt === selectedSavedAt) ?? null;
+
+  const reload = () => {
+    const list = sortedFileDrafts(getFileDrafts());
+    setFileDrafts(list);
+    return list;
+  };
+
+  const handleSelectFile = (file: FileDrafts) => {
+    setSelectedFileId(file.fileId);
+    setSelectedSavedAt(file.versions[0]?.savedAt ?? null);
+  };
+
+  const handleRemoveFile = (fileId: string) => {
     removeDraft(fileId);
-    const updated = getDrafts().sort((a, b) => b.savedAt - a.savedAt);
-    setDrafts(updated);
-    if (selected?.fileId === fileId) {
-      setSelected(updated[0] ?? null);
+    const list = reload();
+    if (selectedFileId === fileId) {
+      const first = list[0] ?? null;
+      setSelectedFileId(first?.fileId ?? null);
+      setSelectedSavedAt(first?.versions[0]?.savedAt ?? null);
+    }
+  };
+
+  const handleRemoveVersion = (fileId: string, savedAt: number) => {
+    removeVersion(fileId, savedAt);
+    const list = reload();
+    const updatedFile = list.find((f) => f.fileId === fileId) ?? null;
+    if (selectedSavedAt === savedAt) {
+      // Select the first remaining version of the same file, or move to another file
+      if (updatedFile) {
+        setSelectedSavedAt(updatedFile.versions[0]?.savedAt ?? null);
+      } else {
+        const first = list[0] ?? null;
+        setSelectedFileId(first?.fileId ?? null);
+        setSelectedSavedAt(first?.versions[0]?.savedAt ?? null);
+      }
     }
   };
 
@@ -56,10 +103,13 @@ export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
       return;
     }
     clearDrafts();
-    setDrafts([]);
-    setSelected(null);
+    setFileDrafts([]);
+    setSelectedFileId(null);
+    setSelectedSavedAt(null);
     setConfirmClear(false);
   };
+
+  const hasAny = fileDrafts.length > 0;
 
   return (
     <div className={styles.overlay} onClick={onClose} role="presentation">
@@ -82,36 +132,36 @@ export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
           </button>
         </div>
 
-        {drafts.length === 0 ? (
+        {!hasAny ? (
           <p className={styles.empty}>目前沒有草稿備份。</p>
         ) : (
           <div className={styles.body}>
-            {/* ── Left: list ── */}
-            <ul className={styles.list} role="listbox" aria-label="備份清單">
-              {drafts.map((d) => (
+            {/* ── Column 1: file list ── */}
+            <ul className={styles.list} role="listbox" aria-label="檔案清單">
+              {fileDrafts.map((f) => (
                 <li
-                  key={d.fileId}
-                  className={`${styles.listItem} ${selected?.fileId === d.fileId ? styles.listItemActive : ''}`}
+                  key={f.fileId}
+                  className={`${styles.listItem} ${selectedFileId === f.fileId ? styles.listItemActive : ''}`}
                   role="option"
-                  aria-selected={selected?.fileId === d.fileId}
-                  onClick={() => setSelected(d)}
+                  aria-selected={selectedFileId === f.fileId}
+                  onClick={() => handleSelectFile(f)}
                 >
                   <div className={styles.itemInfo}>
                     <span className={styles.itemName}>
-                      {d.fileName ?? '（未儲存的新文件）'}
+                      {f.fileName ?? '（未儲存的新文件）'}
                     </span>
                     <span className={styles.itemDate}>
-                      {formatDate(d.savedAt)}
+                      {f.versions.length} 個版本
                     </span>
                   </div>
                   <button
                     className={styles.removeBtn}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleRemove(d.fileId);
+                      handleRemoveFile(f.fileId);
                     }}
-                    aria-label={`刪除 ${d.fileName ?? '新文件'} 的備份`}
-                    title="刪除此備份"
+                    aria-label={`刪除 ${f.fileName ?? '新文件'} 的全部備份`}
+                    title="刪除此檔案的全部版本"
                   >
                     🗑
                   </button>
@@ -119,25 +169,63 @@ export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
               ))}
             </ul>
 
-            {/* ── Right: preview ── */}
+            {/* ── Column 2: version list ── */}
+            <ul
+              className={styles.versionList}
+              role="listbox"
+              aria-label="版本清單"
+            >
+              {selectedFile ? (
+                selectedFile.versions.map((v) => (
+                  <li
+                    key={v.savedAt}
+                    className={`${styles.versionItem} ${selectedSavedAt === v.savedAt ? styles.versionItemActive : ''}`}
+                    role="option"
+                    aria-selected={selectedSavedAt === v.savedAt}
+                    onClick={() => setSelectedSavedAt(v.savedAt)}
+                  >
+                    <span className={styles.versionDate}>
+                      {formatDate(v.savedAt)}
+                    </span>
+                    <button
+                      className={styles.removeBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveVersion(selectedFile.fileId, v.savedAt);
+                      }}
+                      aria-label={`刪除 ${formatDate(v.savedAt)} 的備份`}
+                      title="刪除此版本"
+                    >
+                      🗑
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li className={styles.versionEmpty}>請從左側選取檔案</li>
+              )}
+            </ul>
+
+            {/* ── Column 3: content preview ── */}
             <div className={styles.preview}>
-              {selected ? (
+              {selectedVersion && selectedFile ? (
                 <>
                   <div className={styles.previewHeader}>
                     <span className={styles.previewName}>
-                      {selected.fileName ?? '（未儲存的新文件）'}
+                      {selectedFile.fileName ?? '（未儲存的新文件）'}
                     </span>
                     <span className={styles.previewDate}>
-                      備份於 {formatDate(selected.savedAt)}
+                      備份於 {formatDate(selectedVersion.savedAt)}
                     </span>
                   </div>
                   <pre className={styles.previewContent}>
-                    {selected.content}
+                    {selectedVersion.content}
                   </pre>
                   <div className={styles.previewActions}>
                     <button
                       className={styles.applyBtn}
-                      onClick={() => onApply(selected.content, selected.fileId)}
+                      onClick={() =>
+                        onApply(selectedVersion.content, selectedFile.fileId)
+                      }
                     >
                       套用至編輯器
                     </button>
@@ -154,7 +242,7 @@ export function DraftDialog({ open, onClose, onApply }: DraftDialogProps) {
         )}
 
         {/* ── Footer ── */}
-        {drafts.length > 0 && (
+        {hasAny && (
           <div className={styles.footer}>
             <button
               className={`${styles.clearBtn} ${confirmClear ? styles.clearBtnConfirm : ''}`}
