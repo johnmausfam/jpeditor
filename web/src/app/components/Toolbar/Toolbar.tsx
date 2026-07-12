@@ -17,6 +17,7 @@ interface ToolbarProps {
   onImage: () => void;
   onLink: () => void;
   onYoutube: () => void;
+  onTable: () => void;
   onSetViewMode?: (mode: ViewMode) => void;
 }
 
@@ -28,6 +29,7 @@ export function Toolbar({
   onImage,
   onLink,
   onYoutube,
+  onTable,
   onSetViewMode,
 }: ToolbarProps) {
   const { viewMode, setViewMode, fontFamily, setFontFamily } = useEditorStore();
@@ -253,6 +255,77 @@ export function Toolbar({
           ——
         </button>
       </div>
+
+      <div className={styles.separator} />
+
+      {/* 表格 */}
+      <div className={styles.group}>
+        <button
+          className={`${styles.btn} ${isActive('table') ? styles.active : ''}`}
+          onClick={onTable}
+          aria-label="插入表格"
+          title="插入表格"
+        >
+          ⊞
+        </button>
+      </div>
+
+      {/* 表格內操作（游標在表格內時顯示） */}
+      {isActive('table') && (
+        <>
+          <div className={styles.separator} />
+          <div className={styles.group}>
+            <button
+              className={styles.btn}
+              onMouseDown={cmd(() =>
+                editor?.chain().focus().addRowAfter().run(),
+              )}
+              aria-label="在下方插入一列"
+              title="在下方插入一列"
+            >
+              +列↓
+            </button>
+            <button
+              className={styles.btn}
+              onMouseDown={cmd(() => editor?.chain().focus().deleteRow().run())}
+              aria-label="刪除當前列"
+              title="刪除當前列"
+            >
+              −列
+            </button>
+            <button
+              className={styles.btn}
+              onMouseDown={cmd(() =>
+                editor?.chain().focus().addColumnAfter().run(),
+              )}
+              aria-label="在右側插入一欄"
+              title="在右側插入一欄"
+            >
+              +欄→
+            </button>
+            <button
+              className={styles.btn}
+              onMouseDown={cmd(() =>
+                editor?.chain().focus().deleteColumn().run(),
+              )}
+              aria-label="刪除當前欄"
+              title="刪除當前欄"
+            >
+              −欄
+            </button>
+            <button
+              className={`${styles.btn} ${styles.deleteTableBtn}`}
+              onMouseDown={cmd(() =>
+                editor?.chain().focus().deleteTable().run(),
+              )}
+              aria-label="刪除表格"
+              title="刪除表格"
+            >
+              刪除表格
+            </button>
+          </div>
+        </>
+      )}
 
       <div className={styles.separator} />
 

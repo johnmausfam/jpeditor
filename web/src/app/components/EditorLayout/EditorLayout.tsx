@@ -24,6 +24,10 @@ const TEMPLATE_FALLBACK =
   '# 第　課　タイトル\n\n**日期：**　　　　**班級：**　　　　**教師：**\n';
 const EFFECTIVE_TEMPLATE = templateContent || TEMPLATE_FALLBACK;
 
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import { RubyExtension } from '../../lib/rubyExtension';
 import { YoutubeExtension } from '../../lib/YoutubeExtension';
 import { useImageInsert } from '../../lib/useImageInsert';
@@ -51,6 +55,7 @@ import { SaveAsDialog } from '../SaveAsDialog/SaveAsDialog';
 import { SettingsDialog } from '../SettingsDialog/SettingsDialog';
 import { DraftDialog } from '../DraftDialog/DraftDialog';
 import { AppDrawer } from '../AppDrawer/AppDrawer';
+import { TableDialog } from '../TableDialog/TableDialog';
 import { PreviewPane } from '../PreviewPane/PreviewPane';
 import styles from './EditorLayout.module.css';
 
@@ -129,6 +134,8 @@ export function EditorLayout() {
 
   // ── YouTube dialog state ────────────────────────────────────────────
   const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
+  // ── Table dialog state ───────────────────────────────────────────────
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
   // ── Google Drive state ───────────────────────────────────────────────────
   const [drivePanelOpen, setDrivePanelOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
@@ -192,6 +199,10 @@ export function EditorLayout() {
       RubyExtension,
       Link.configure({ autolink: false, openOnClick: false }),
       YoutubeExtension,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableCell,
+      TableHeader,
       Markdown.configure({ html: true, transformPastedText: true }),
     ],
     content: DEFAULT_CONTENT,
@@ -380,6 +391,15 @@ export function EditorLayout() {
     setYoutubeDialogOpen(false);
     editor?.view.focus();
   }, [editor]);
+
+  // ── Table helpers ─────────────────────────────────────────────────────
+  const handleTableInsert = useCallback(
+    (rows: number, cols: number, withHeaderRow: boolean) => {
+      editor?.chain().focus().insertTable({ rows, cols, withHeaderRow }).run();
+      setTableDialogOpen(false);
+    },
+    [editor],
+  );
 
   // ── Google Drive handlers ─────────────────────────────────────────────────
 
@@ -748,6 +768,7 @@ export function EditorLayout() {
           onImage={() => setImageDialogOpen(true)}
           onLink={openLinkDialog}
           onYoutube={() => setYoutubeDialogOpen(true)}
+          onTable={() => setTableDialogOpen(true)}
           onSetViewMode={handleSetViewMode}
         />
       )}
@@ -846,6 +867,13 @@ export function EditorLayout() {
         open={youtubeDialogOpen}
         onConfirm={handleYoutubeConfirm}
         onCancel={handleYoutubeCancel}
+      />
+
+      {/* ── Table dialog ── */}
+      <TableDialog
+        open={tableDialogOpen}
+        onClose={() => setTableDialogOpen(false)}
+        onInsert={handleTableInsert}
       />
 
       {/* ── App drawer ── */}

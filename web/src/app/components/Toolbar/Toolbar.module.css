@@ -116,3 +116,17 @@
   background: #f0f9ff;
   border-color: #7dd3fc;
 }
+
+/* Delete table button */
+.deleteTableBtn {
+  color: #dc2626;
+  font-size: 11px;
+  padding: 4px 8px;
+  min-width: auto;
+}
+
+.deleteTableBtn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
