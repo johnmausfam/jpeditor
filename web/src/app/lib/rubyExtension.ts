@@ -8,7 +8,11 @@ declare module '@tiptap/core' {
       /** Insert a ruby (furigana) node replacing the current selection */
       setRuby: (attrs: { text: string; reading: string }) => ReturnType;
       /** Replace an existing ruby node at the given document position */
-      editRuby: (attrs: { pos: number; text: string; reading: string }) => ReturnType;
+      editRuby: (attrs: {
+        pos: number;
+        text: string;
+        reading: string;
+      }) => ReturnType;
     };
   }
 }
@@ -40,7 +44,10 @@ interface MdInstance {
   __rubyAdded?: boolean;
   inline: {
     ruler: {
-      push: (name: string, fn: (state: MdInlineState, silent: boolean) => boolean) => void;
+      push: (
+        name: string,
+        fn: (state: MdInlineState, silent: boolean) => boolean,
+      ) => void;
     };
   };
   renderer: {
@@ -53,7 +60,7 @@ export const RubyExtension = Node.create({
   name: 'ruby',
   group: 'inline',
   inline: true,
-  atom: true,     // treated as a single unit (not editable inside)
+  atom: true, // treated as a single unit (not editable inside)
   draggable: false, // base spec flag (selectNode still overrides this in default NodeView)
 
   addAttributes() {
@@ -111,17 +118,13 @@ export const RubyExtension = Node.create({
         ruby.appendChild(rt);
       };
 
-      buildDOM(
-        node.attrs['text'] as string,
-        node.attrs['reading'] as string,
-      );
+      buildDOM(node.attrs['text'] as string, node.attrs['reading'] as string);
 
       // Double-click → open edit dialog with current values pre-filled
       ruby.addEventListener('dblclick', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const pos =
-          typeof getPos === 'function' ? (getPos() ?? -1) : -1;
+        const pos = typeof getPos === 'function' ? (getPos() ?? -1) : -1;
         document.dispatchEvent(
           new CustomEvent('jpeditor:edit-ruby', {
             detail: {
@@ -230,32 +233,37 @@ export const RubyExtension = Node.create({
                 if (state.src.charCodeAt(pos) !== 0x7b) return false;
 
                 const max = state.posMax;
-                let pipePos = -1;
+                let sepPos = -1;
                 let end = -1;
 
                 for (let i = pos + 1; i <= max; i++) {
                   const ch = state.src.charCodeAt(i);
                   if (ch === 0x0a) return false; // newline inside → abort
-                  if (ch === 0x7c && pipePos === -1) pipePos = i; // '|'
+                  // 0x7c = '|'  0x3b = ';'  0x2f = '/'
+                  if (
+                    (ch === 0x7c || ch === 0x3b || ch === 0x2f) &&
+                    sepPos === -1
+                  )
+                    sepPos = i;
                   if (ch === 0x7d) {
                     end = i;
                     break;
                   } // '}'
                 }
 
-                // Need both '|' and '}'
-                if (pipePos === -1 || end === -1) return false;
+                // Need both separator and '}'
+                if (sepPos === -1 || end === -1) return false;
                 // Text and reading must be non-empty
-                if (pipePos <= pos + 1 || end <= pipePos + 1) return false;
+                if (sepPos <= pos + 1 || end <= sepPos + 1) return false;
 
                 if (!silent) {
                   const token = state.push('ruby_inline', 'ruby', 0);
-                  token.attrSet('data-text', state.src.slice(pos + 1, pipePos));
+                  token.attrSet('data-text', state.src.slice(pos + 1, sepPos));
                   token.attrSet(
                     'data-reading',
-                    state.src.slice(pipePos + 1, end),
+                    state.src.slice(sepPos + 1, end),
                   );
-                  token.content = state.src.slice(pos + 1, pipePos);
+                  token.content = state.src.slice(pos + 1, sepPos);
                 }
 
                 state.pos = end + 1;
